@@ -21,7 +21,7 @@ namespace NancyApplication {
         }
     }
 
-    public class Subscriptions
+    public class Subscription
     {
         public string TopicID {get;set;}
         public string AccountID {get;set;}

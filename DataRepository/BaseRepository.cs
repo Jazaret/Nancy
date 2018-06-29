@@ -10,7 +10,6 @@ namespace NancyApplication
     using Newtonsoft.Json;
     public class BaseRepository {
         protected const string TopicsDB = "TopicsDB";
-        protected const string TopicsCollection = "TopicsCollection";
         protected const string EndpointUrl = "https://topics.documents.azure.com:443/";
         protected const string PrimaryKey = "LmX3kOe6k6DADHOQbehETuHo09Evi3AVzEN2JhZL2Ax9XONxmmUgALHMOhfTbR2rPw5Xv6byrC5xsvAhRUSVXA==";
 

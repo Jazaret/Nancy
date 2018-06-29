@@ -19,21 +19,20 @@ namespace NancyApplication
         {
             DocumentCollection myCollection = new DocumentCollection();
             myCollection.Id = AccountsCollection;
-            //myCollection.PartitionKey.Paths.Add("/deviceId");
             await this.client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(TopicsDB), new DocumentCollection { Id = AccountsCollection });
         }
 
         public Account AddAccount(string accountName, string displayName) {
-            var a = new Account{
+            var account = new Account{
                 ID = Guid.NewGuid().ToString(),
                 AccountName = accountName,
                 DisplayName = displayName
             };
 
-            var task = CreateAccount(a);
+            var task = CreateAccount(account);
             task.Wait();
 
-            return a;
+            return account;
         }
 
         private async Task CreateAccount(Account newAccount)
@@ -42,16 +41,16 @@ namespace NancyApplication
         }          
 
         public Account UpdateAccount(string Id, string accountName, string displayName) {
-            var a = new Account{
+            var account = new Account{
                 ID = Guid.NewGuid().ToString(),
                 AccountName = accountName,
                 DisplayName = displayName
             };
 
-            var task = ReplaceDocument(a);
+            var task = ReplaceDocument(account);
             task.Wait();
 
-            return a;
+            return account;
         }
 
         private async Task ReplaceDocument(Account account)
