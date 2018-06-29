@@ -4,6 +4,7 @@ namespace NancyApplication
     using Microsoft.Extensions.DependencyInjection;
     using System.Configuration;
     using Nancy.Owin;
+    using StackExchange.Redis;
 
     public class Startup
     {
@@ -19,6 +20,7 @@ namespace NancyApplication
                 options.Configuration = "topics.redis.cache.windows.net:6380,password=mTDuw1qJqQSsm8rGNK4e7ko9csj7AJvPPpRSVCqO2CY=,ssl=True,abortConnect=False"; //Configuration.GetConnectionString("RedisConnection");  
                 options.InstanceName = "topics";
             });
+            //services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("yourConnectionString"); todo fix or remove
         }  
     }
 
@@ -29,6 +31,11 @@ namespace NancyApplication
         {
             services.AddTransient<ITopicService, TopicService>();
             services.AddTransient<ITopicRepository, TopicRepository>();
+            services.AddTransient<IAccountService, AccountService>();
+            services.AddTransient<IAccountRepository, AccountRepository>();
+            services.AddTransient<ISubscriptionService, SubscriptionService>();
+            services.AddTransient<ISubscriptionRepository, SubscriptionRepostiory>();
+
             return services;
         }
     }

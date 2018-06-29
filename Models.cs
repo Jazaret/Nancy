@@ -7,7 +7,8 @@ namespace NancyApplication {
         [JsonProperty(PropertyName = "id")]
         public string ID {get; set;}
         public string AccountName {get;set;}
-        public string DisplayName {get;set;}
+        [JsonIgnore]
+        public string AccountPassword {get;set;}
     }
 
     public class Topic

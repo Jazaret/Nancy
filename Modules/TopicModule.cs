@@ -5,15 +5,13 @@ namespace NancyApplication
     using System;
     using System.Collections.Generic;
 
-    public class HomeModule : NancyModule
+    public class TopicsModule : NancyModule
     {
         private ITopicService _topicService;
-        private IDistributedCache _cache;
 
-        public HomeModule(ITopicService topicService)
+        public TopicsModule(ITopicService topicService)
         {
             _topicService = topicService;
-            _topicService.GetAllTopics();
 
             Get("/", args => { 
                 return Response.AsRedirect("Topics/");
@@ -27,8 +25,6 @@ namespace NancyApplication
                 List<Topic> result = topicService.SearchForNews(this.Request.Query["q"]);
                 return Response.AsJson(result);
             });
-
-            //Get("/test/{name}", args => new Task() { Name = args.name });
         }
     }
 }

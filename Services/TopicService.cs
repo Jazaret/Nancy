@@ -16,5 +16,14 @@ namespace NancyApplication {
         public IEnumerable<Topic> SearchForNews(string news) {
             return _topicRepo.SearchForTopics(news);
         }
+
+        public string CreateSubscription(string accountId, string topicId) {
+            var result = "";
+            return result;
+        }
+
+        public void ConfirmSubscription(string confirmationToken) {
+            return;
+        }
     }
 }

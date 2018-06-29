@@ -10,50 +10,22 @@ namespace NancyApplication
     using Newtonsoft.Json;
     using Microsoft.Extensions.Caching.Distributed;
 
-    public class TopicRepository : ITopicRepository {
-        protected const string TopicsDB = "TopicsDB";
-        protected const string EndpointUrl = "https://topics.documents.azure.com:443/";
-        protected const string PrimaryKey = "LmX3kOe6k6DADHOQbehETuHo09Evi3AVzEN2JhZL2Ax9XONxmmUgALHMOhfTbR2rPw5Xv6byrC5xsvAhRUSVXA==";
-
-        protected DocumentClient client; 
+    public class TopicRepository : BaseRepository, ITopicRepository {
+        protected const string TopicsCollection = "TopicsCollection";
+        protected const string SubscriptionCollection = "SubscriptionCollection";
+        protected const string AccountsCollection = "AccountsCollection";
         private IDistributedCache _cache;
 
-        protected const string TopicsCollection = "TopicsCollection";
         
-        public TopicRepository() {
-            this.client = new DocumentClient(new Uri(EndpointUrl), PrimaryKey);
-            this.client.CreateDatabaseIfNotExistsAsync(new Database { Id = TopicsDB });
+        public TopicRepository() : base() {
             Initialize().Wait();
-            //this._cache = cache;  
         }
 
         private async Task Initialize()
         {
             DocumentCollection myCollection = new DocumentCollection();
             myCollection.Id = TopicsCollection;
-            //myCollection.PartitionKey.Paths.Add("/deviceId");
             await this.client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(TopicsDB), new DocumentCollection { Id = TopicsCollection });
-        }
-
-        private async Task CreateDocumentIfNotExists(string databaseName, string collectionName, Topic topic)
-        {
-            try
-            {
-                await this.client.ReadDocumentAsync(UriFactory.CreateDocumentUri(databaseName, collectionName, topic.ID));
-                Console.WriteLine($"Found {topic.ID}");
-            }
-            catch (DocumentClientException de)
-            {
-                if (de.StatusCode == HttpStatusCode.NotFound)
-                {
-                    await this.client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(databaseName, collectionName), topic);
-                    Console.WriteLine($"Created Topic {topic.ID}");
-                }
-                else
-                {
-                    throw;
-                }
-            }
         }
 
         IEnumerable<Topic> ITopicRepository.GetTopics()

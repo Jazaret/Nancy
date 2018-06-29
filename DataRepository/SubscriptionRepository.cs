@@ -9,10 +9,20 @@ namespace NancyApplication
     using Microsoft.Azure.Documents.Client;
     using Newtonsoft.Json;
 
-    public class SubscriptionRepostiory : BaseRepository {
+    public class SubscriptionRepostiory : BaseRepository, ISubscriptionRepository {
         protected const string SubscriptionCollection = "SubscriptionCollection";
         public SubscriptionRepostiory() : base() {
             Initialize().Wait();
+        }
+
+        public string AddSubscriptionRequest(string accountId, string topicId)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void ConfirmSubscription(string confirmationToken)
+        {
+            throw new NotImplementedException();
         }
 
         private async Task Initialize()
@@ -22,19 +32,5 @@ namespace NancyApplication
             myCollection.PartitionKey.Paths.Add("/accountId");
             await this.client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(TopicsDB), new DocumentCollection { Id = SubscriptionCollection });
         }
-
-        public string AddSubscriptionRequest(string accountId, string topicId) {
-            //create confirmation token and return
-            throw new Exception("Not implemented yet");
-        }
-
-        public Subscription ConfirmSubscription(string confirmationToken) {
-            throw new Exception("Not implemented yet");
-        }
-
-        private async Task ReplaceDocument(Subscription subscription)
-        {
-
-        }        
     }
 }

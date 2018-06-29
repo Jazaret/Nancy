@@ -9,7 +9,7 @@ namespace NancyApplication
     using Microsoft.Azure.Documents.Client;
     using Newtonsoft.Json;
 
-    public class AccountRepository : BaseRepository {
+    public class AccountRepository : BaseRepository, IAccountRepository {
         protected const string AccountsCollection = "AccountsCollection";
         public AccountRepository() : base() {
             Initialize().Wait();
@@ -26,7 +26,7 @@ namespace NancyApplication
             var account = new Account{
                 ID = Guid.NewGuid().ToString(),
                 AccountName = accountName,
-                DisplayName = displayName
+                AccountPassword = displayName
             };
 
             var task = CreateAccount(account);
@@ -44,7 +44,7 @@ namespace NancyApplication
             var account = new Account{
                 ID = Guid.NewGuid().ToString(),
                 AccountName = accountName,
-                DisplayName = displayName
+                AccountPassword = displayName
             };
 
             var task = ReplaceDocument(account);
