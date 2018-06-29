@@ -6,7 +6,8 @@ namespace NancyApplication {
     {
         [JsonProperty(PropertyName = "id")]
         public string ID {get; set;}
-        public string Name {get;set;}
+        public string AccountName {get;set;}
+        public string DisplayName {get;set;}
     }
 
     public class Topic
@@ -18,6 +19,12 @@ namespace NancyApplication {
         {
             return JsonConvert.SerializeObject(this);
         }
+    }
+
+    public class Subscriptions
+    {
+        public string TopicID {get;set;}
+        public string AccountID {get;set;}
     }
 
 

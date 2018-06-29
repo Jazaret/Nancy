@@ -34,12 +34,15 @@ namespace NancyApplication
 
         public List<Topic> SearchForNews(string news) {
             //TODO Add cache
+            // var cacheResult = cache.get(news) ; if cacheResult != null return cache.
 
             FeedOptions queryOptions = new FeedOptions { MaxItemCount = -1 };
 
             var result = this.client.CreateDocumentQuery<Topic>(
                     UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
                     .Where(f => f.Name.Contains(news)).ToList();
+
+            //add cache.add(news,result);
 
             return result;
         }
