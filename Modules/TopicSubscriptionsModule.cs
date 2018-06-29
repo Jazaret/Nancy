@@ -5,6 +5,9 @@ namespace NancyApplication
     using System;
     using System.Collections.Generic;
 
+    /// <summary>
+    /// Nancy module that handles the Subscription endpoints
+    /// </summary>
     public class TopicSubscriptionsModule : NancyModule
     {
         private ISubscriptionService _subscriptionService;
@@ -13,20 +16,23 @@ namespace NancyApplication
         {
             _subscriptionService = subcriptionService;
 
-            Post("Topics/{topicId}/Subscribe/{accountId}", args =>
+            //Subscribe to topic
+            Post("Topics/{topicId}/Subscribe?u={accountId}", args =>
             {
-                string result = _subscriptionService.CreateSubscription(args.name, args.accountId);
+                string result = _subscriptionService.CreateSubscription(args.accountId, args.topicId);
                 return Response.AsJson(new { ConfirmationToken = result });
             });
 
-            Post("Topics/Subscribe/{confirmationToken}", args =>
+            //Confirm topic subscription
+            Post("Topics/Subscribe/{confirmationToken}?u={accountId}", args =>
             {
-                _subscriptionService.ConfirmSubscription(args.confirmationToken);
+                _subscriptionService.ConfirmSubscription(args.confirmationToken, args.accountId);
                 return HttpStatusCode.OK;
             });
 
-            Delete("Topics/Subscription/{subscriptionId}", args => {
-                _subscriptionService.DeleteSubscription(args.subscriptionId);
+            //Delete topic
+            Delete("Topics/Subscription/{subscriptionId}?u={accountId}", args => {
+                _subscriptionService.DeleteSubscription(args.subscriptionId, args.accountId);
                 return HttpStatusCode.OK;
             });
         }

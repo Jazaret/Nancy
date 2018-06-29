@@ -1,6 +1,9 @@
 using System.Collections.Generic;
 
 namespace NancyApplication {
+    /// <summary>
+    /// Service that handles actions on Subscriptions
+    /// </summary>
     public class SubscriptionService : ISubscriptionService
     {
         ISubscriptionRepository _subRepo;
@@ -10,17 +13,16 @@ namespace NancyApplication {
         }
         
         public string CreateSubscription(string accountId, string topicId) {
-            var result = "";
-            return result;
+            return _subRepo.AddSubscriptionRequest(accountId,topicId);
         }
 
-        public void ConfirmSubscription(string confirmationToken) {
-            return;
+        public void ConfirmSubscription(string confirmationToken, string accountId) {
+            _subRepo.ConfirmSubscription(confirmationToken, accountId);
         }
 
-        public void DeleteSubscription(string subscriptionId)
+        public void DeleteSubscription(string subscriptionId, string accountId)
         {
-            return;
+            _subRepo.DeleteSubscription(subscriptionId, accountId);
         }
     }
 }

@@ -8,6 +8,10 @@ namespace NancyApplication
     using Microsoft.Azure.Documents;
     using Microsoft.Azure.Documents.Client;
     using Newtonsoft.Json;
+    
+    /// <summary>
+    /// Shared base object for all DynamoDB repos. TODO - Read endpoint and key from appsettings
+    /// </summary>
     public class BaseRepository {
         protected const string TopicsDB = "TopicsDB";
         protected const string EndpointUrl = "https://topics.documents.azure.com:443/";
@@ -15,10 +19,13 @@ namespace NancyApplication
 
         protected DocumentClient client;    
 
-        public BaseRepository() {
+        /// <summary>
+        /// creates a Dyanmo document client and creates the db if it does not exist
+        /// </summary>
+        protected BaseRepository() {
             this.client = new DocumentClient(new Uri(EndpointUrl), PrimaryKey);
             this.client.CreateDatabaseIfNotExistsAsync(new Database { Id = TopicsDB });
-        }    
+        }           
 
     }    
 }

@@ -5,6 +5,10 @@ namespace NancyApplication
     using System;
     using System.Collections.Generic;
 
+
+    /// <summary>
+    /// Nancy module that handles the endpoints for Account actions.
+    /// </summary>
     public class AccountModule : NancyModule
     {
         private IAccountService _accountService;
