@@ -1,4 +1,5 @@
 all : cleanup restore build test
+runapp: restore build run
  
 cleanup:
 	dotnet clean
