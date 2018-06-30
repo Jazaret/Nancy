@@ -4,8 +4,9 @@ using System.Threading.Tasks;
 namespace NancyApplication {
     public interface ISubscriptionRepository
     {
-        string AddSubscriptionRequest(string accountId, string topicId);
-        bool ConfirmSubscription(string confirmationToken, string accountId);
+        Task AddSubscription(Subscription Subscription);
         Task DeleteSubscription(string subscriptionId, string accountId);
+        Subscription GetSubscription(string confirmationToken, string accountId);
+        Task UpdateSubscription(Subscription subcription);
     }
 }

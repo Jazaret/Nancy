@@ -33,37 +33,27 @@ namespace NancyApplication
         /// Adds subscription document to the collection and sets the Subscription to unconfirmed until the ConfirmSubscription method is called.
         /// </summary>
         /// <returns>the confirmationToken the user must specify when confirming subscription</returns>
-        public string AddSubscriptionRequest(string accountId, string topicId)
+        public async Task AddSubscription(Subscription subscription)
         {
-            var confirmationToken = Guid.NewGuid().ToString();
-            var subscription = new Subscription {
-                ID = Guid.NewGuid().ToString(),
-                AccountID = accountId,
-                TopicID = topicId,
-                ConfirmationToken = confirmationToken,
-                SubscriptionConfirmed = false
-            };
-            CreateSubscriptionDocument(subscription).Wait();
-            return confirmationToken;
+            await CreateSubscriptionDocument(subscription);
         }
 
         /// <summary>
-        /// Updating subscription document to set the status as confirmed
-        /// We can consider adding a dateTime UTC stamp if we want more information about when it was confirmed
+        /// Updates the subscription document
         /// </summary>
-        public bool ConfirmSubscription(string confirmationToken, string accountId)
-        {
-            var subscription = this.client.CreateDocumentQuery<Subscription>(
-                    UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection))
-                    .Where(c => c.ConfirmationToken == confirmationToken && c.AccountID == accountId).FirstOrDefault();                                            
+        /// <param name="subscription"></param>
+        /// <returns></returns>
+        public async Task UpdateSubscription(Subscription subscription) {
+            await this.client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, TopicsDB, subscription.ID), subscription);
+        }
 
-            if (subscription != null && !subscription.SubscriptionConfirmed) {
-                subscription.SubscriptionConfirmed = true;
-                UpdateSubscriptionDocument(subscription).Wait();
-                return true;
-            }
-
-            return false;
+        /// <summary>
+        /// Retrieves a subscription document using the confirmation token and the accountid
+        /// </summary>
+        public Subscription GetSubscription(string confirmationToken, string accountId) {
+            return this.client.CreateDocumentQuery<Subscription>(
+                UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection))
+                .Where(c => c.ConfirmationToken == confirmationToken && c.AccountID == accountId).FirstOrDefault();             
         }
 
         /// <summary>
@@ -76,22 +66,10 @@ namespace NancyApplication
             await this.client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, SubscriptionCollection, subscriptionId), new RequestOptions {PartitionKey = new PartitionKey(accountId)});
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="subscription"></param>
-        /// <returns></returns>
-        private async Task UpdateSubscriptionDocument(Subscription subscription)
-        {
-            await this.client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, TopicsDB, subscription.ID), subscription);
-        }        
-
-
         private async Task CreateSubscriptionDocument(Subscription subscription)
         {
             try
             {
-                await this.client.ReadDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, SubscriptionCollection, subscription.ID));
                 await client.ReadDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, SubscriptionCollection, subscription.ID),new RequestOptions { PartitionKey = new PartitionKey(subscription.AccountID) });
             }
             catch (DocumentClientException de)

@@ -17,19 +17,19 @@ namespace NancyApplication
         {
             _accountService = accountService;
 
-            Post("Account/Add/Name={name}&Desc={description}", args =>
+            Post("Account/Add/Name={name}", args =>
             {
-                Account result = _accountService.AddAccount(args.name, args.description);
+                var password = Request.Body.ToString();
+                Account result = _accountService.AddAccount(args.name, password);
                 return Response.AsJson(result);
             });
 
-            Put("Account/{accountId}/Update/Name={name}&Desc={description}", args =>
+            Put("Account/{accountId}/Update/Name={name}", args =>
             {
-                _accountService.UpdateAccount(args.accountId, args.name, args.description);
+                var password = Request.Body.ToString();
+                _accountService.UpdateAccount(args.accountId, args.name, password);
                 return HttpStatusCode.OK;
             });
-
-            //Get("/test/{name}", args => new Task() { Name = args.name });
         }
     }
 }

@@ -15,7 +15,6 @@ namespace NancyApplication
     /// </summary>
     public class TopicRepository : BaseRepository, ITopicRepository {
         protected const string TopicsCollection = "TopicsCollection";
-        private IDistributedCache _cache;
         
         public TopicRepository() : base() {
             Initialize().Wait();
@@ -50,23 +49,9 @@ namespace NancyApplication
         /// <returns>topics that contains the parameter</returns>
         public IEnumerable<Topic> SearchForTopics(string news)
         {
-            string cacheResult = null;
-            if (_cache != null) {
-                cacheResult = _cache.GetString(news);
-            }
-            
-            if (cacheResult != null) { 
-                return JsonConvert.DeserializeObject<List<Topic>>(cacheResult);
-            }
-
             var result = this.client.CreateDocumentQuery<Topic>(
                     UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
                     .Where(f => f.Name.Contains(news)).ToList();
-
-            if (_cache != null) {
-                _cache.SetString(news,JsonConvert.SerializeObject(result));
-            }
-
             return result;
         }    
     }

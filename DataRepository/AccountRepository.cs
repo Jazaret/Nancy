@@ -32,33 +32,15 @@ namespace NancyApplication
         /// <summary>
         /// Adds an account object to the repository. Note - password should be stored with salt and hash
         /// </summary>
-        public Account AddAccount(string accountName, string password) {
-            var account = new Account{
-                ID = Guid.NewGuid().ToString(),
-                AccountName = accountName,
-                AccountPassword = password
-            };
-
-            var task = CreateDocument(account);
-            task.Wait();
-
-            return account;
+        public async Task AddAccount(Account account) {
+            await CreateDocument(account);            
         }
 
         /// <summary>
         /// Update Account document in the repository. Note - password should be stored with salt and hash
         /// </summary>
-        public Account UpdateAccount(string Id, string accountName, string password) {
-            var account = new Account{
-                ID = Guid.NewGuid().ToString(),
-                AccountName = accountName,
-                AccountPassword = password
-            };
-
-            var task = ReplaceDocument(account);
-            task.Wait();
-
-            return account;
+        public async Task UpdateAccount(Account account) {
+            await ReplaceDocument(account);
         }
 
         private async Task ReplaceDocument(Account account)

@@ -16,6 +16,18 @@ namespace NancyApplication {
         {
             return JsonConvert.SerializeObject(this);
         }        
+        public bool IsValid() {
+            if (string.IsNullOrWhiteSpace(ID)) {
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(AccountName)) {
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(AccountPassword)) {
+                return false;
+            }
+            return true;
+        }
     }
 
     public class Topic

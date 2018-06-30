@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace NancyApplication {
@@ -12,14 +13,46 @@ namespace NancyApplication {
             _accountRepo = accountRepository;
         }
 
+        /// <summary>
+        /// Adds an account to repository if valid
+        /// </summary>
         public Account AddAccount(string accountName, string accountPassword)
         {
-            return _accountRepo.AddAccount(accountName, accountPassword);
+            var account = new Account{
+                ID = Guid.NewGuid().ToString(),
+                AccountName = accountName,
+                AccountPassword = accountPassword
+            };            
+
+            if (!account.IsValid()) {
+                //return invalid response code 400
+                throw new Exception("Invalid account data");
+            }
+            
+            _accountRepo.AddAccount(account);
+
+            return account;
         }
 
+        /// <summary>
+        /// Updates an account from the repository if valid.
+        /// </summary>
         public Account UpdateAccount(string accountId, string accountName, string accountPassword)
         {
-            return _accountRepo.UpdateAccount(accountId, accountName, accountPassword);
+             var account = new Account{
+                ID = accountId,
+                AccountName = accountName,
+                AccountPassword = accountPassword
+            };
+
+            if (!account.IsValid()) {
+                //return invalid response code 400
+                throw new Exception("Invalid account data");
+            }
+            
+            _accountRepo.UpdateAccount(account);
+            
+            return account;
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace NancyApplication {
@@ -13,13 +14,34 @@ namespace NancyApplication {
         }
         
         public string CreateSubscription(string accountId, string topicId) {
-            return _subRepo.AddSubscriptionRequest(accountId,topicId);
+            var confirmationToken = Guid.NewGuid().ToString();
+            var subscription = new Subscription {
+                ID = Guid.NewGuid().ToString(),
+                AccountID = accountId,
+                TopicID = topicId,
+                ConfirmationToken = confirmationToken,
+                SubscriptionConfirmed = false
+            };
+            _subRepo.AddSubscription(subscription);
+            return confirmationToken;
         }
 
+        /// <summary>
+        /// Updating subscription to set the status as confirmed
+        /// We can consider adding a dateTime UTC stamp if we want more information about when it was confirmed
+        /// </summary>        
         public void ConfirmSubscription(string confirmationToken, string accountId) {
-            _subRepo.ConfirmSubscription(confirmationToken, accountId);
+
+            var subscription = _subRepo.GetSubscription(confirmationToken,accountId);
+            if (subscription != null && !subscription.SubscriptionConfirmed) {
+                subscription.SubscriptionConfirmed = true;
+                _subRepo.UpdateSubscription(subscription);
+            }
         }
 
+        /// <summary>
+        /// Deletes the subscription from the repository
+        /// </summary>
         public void DeleteSubscription(string subscriptionId, string accountId)
         {
             _subRepo.DeleteSubscription(subscriptionId, accountId);
