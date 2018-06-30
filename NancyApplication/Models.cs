@@ -63,8 +63,6 @@ namespace NancyApplication {
         public string ConfirmationToken { get; set; }
 
         public bool SubscriptionConfirmed { get; set; }
-        public string ETag { get; set; }
-
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
@@ -85,7 +83,23 @@ namespace NancyApplication {
             this.AccountID = accountID;
             this.ConfirmationToken = Guid.NewGuid().ToString();
             this.SubscriptionConfirmed = false;
-        }        
+        }
+        /// <summary>
+        /// Updates the data from existing subscription to a new one. 
+        /// Currently only reason is to change the subscription confirmed status.
+        /// Keeps busines logic outside of storage repository
+        /// </summary>
+        public void ReplaceWith(Subscription newSubscription) {
+            this.SubscriptionConfirmed = newSubscription.SubscriptionConfirmed;
+        }
+    }
+
+    public enum ActionResult {
+        Success,
+        DoesNotExist,
+        ActionNotRequired,
+        ConcurrencyViolation,
+        Error
     }
 
 

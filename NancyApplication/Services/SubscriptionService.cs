@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace NancyApplication {
     /// <summary>
@@ -23,13 +24,15 @@ namespace NancyApplication {
         /// Updating subscription to set the status as confirmed
         /// We can consider adding a dateTime UTC stamp if we want more information about when it was confirmed
         /// </summary>        
-        public void ConfirmSubscription(string confirmationToken, string accountId) {
+        public HttpStatusCode ConfirmSubscription(string confirmationToken, string accountId) {
 
             var subscription = _subRepo.GetSubscription(confirmationToken,accountId);
-            if (subscription != null && !subscription.SubscriptionConfirmed) {
-                subscription.SubscriptionConfirmed = true;
-                _subRepo.UpdateSubscription(subscription);
-            }
+            if (subscription == null) { return HttpStatusCode.NoContent;}
+            if (subscription.SubscriptionConfirmed) { return HttpStatusCode.NotModified;}
+
+            subscription.SubscriptionConfirmed = true;
+            var updateTaskResult = _subRepo.UpdateSubscription(subscription).Result;
+            return updateTaskResult;
         }
 
         /// <summary>

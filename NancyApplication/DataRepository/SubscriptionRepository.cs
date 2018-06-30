@@ -24,10 +24,13 @@ namespace NancyApplication
         /// </summary>
         private async Task Initialize()
         {
-            DocumentCollection subscriptions = new DocumentCollection();
-            subscriptions.Id = SubscriptionCollection;
-            subscriptions.PartitionKey.Paths.Add("/AccountID");
-            Collection = await this.Client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(TopicsDB), new DocumentCollection { Id = SubscriptionCollection });
+            DocumentCollection subscriptionsCollectionDefinition = new DocumentCollection();
+            subscriptionsCollectionDefinition.Id = SubscriptionCollection;
+            subscriptionsCollectionDefinition.PartitionKey.Paths.Add("/AccountID");
+            this.Collection = await this.Client.CreateDocumentCollectionIfNotExistsAsync(
+                UriFactory.CreateDatabaseUri(TopicsDB),
+                subscriptionsCollectionDefinition,
+                new RequestOptions { OfferThroughput = 10100 });
         }
 
         /// <summary>
@@ -45,9 +48,7 @@ namespace NancyApplication
         /// <param name="subscription"></param>
         /// <returns></returns>
         public async Task<HttpStatusCode> UpdateSubscription(Subscription subscription) {
-            var ac = new AccessCondition {Condition = subscription.ETag, Type = AccessConditionType.IfMatch};
-            var result = await this.Client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, TopicsDB, subscription.Id), subscription,new RequestOptions {AccessCondition = ac});       
-            return result.StatusCode;
+            return await ReplaceSubscriptionOptimistic(subscription);
         }
 
         /// <summary>
@@ -56,7 +57,7 @@ namespace NancyApplication
         public Subscription GetSubscription(string confirmationToken, string accountId) {
             return this.Client.CreateDocumentQuery<Subscription>(
                 UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection))
-                .Where(c => c.ConfirmationToken == confirmationToken && c.AccountID == accountId).FirstOrDefault();     
+                .Where(c => c.ConfirmationToken == confirmationToken && c.AccountID == accountId).AsEnumerable().FirstOrDefault();                 
         }
 
         /// <summary>
@@ -66,30 +67,45 @@ namespace NancyApplication
         /// <returns></returns>
         public async Task<HttpStatusCode> DeleteSubscription(string subscriptionId, string accountId)
         {
-            var result = await this.Client.DeleteDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, SubscriptionCollection, subscriptionId), new RequestOptions {PartitionKey = new PartitionKey(accountId)});
+            var result = await this.Client.DeleteDocumentAsync(
+                UriFactory.CreateDocumentUri(TopicsDB, SubscriptionCollection, subscriptionId)
+                ,new RequestOptions { PartitionKey = new PartitionKey(accountId) });
             return result.StatusCode;
         }
 
+        /// <summary>
+        /// Create Subscription document in collection.
+        /// </summary>
         private async Task<HttpStatusCode> CreateSubscriptionDocument(Subscription subscription)
         {
-            try
-            {
-                var readResult = await Client.ReadDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, SubscriptionCollection, subscription.Id),new RequestOptions { PartitionKey = new PartitionKey(subscription.AccountID) });
-                return readResult.StatusCode;
-            }
-            catch (DocumentClientException de)
-            {
-                if (de.StatusCode == HttpStatusCode.NotFound)
-                {
-                    var result = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection), subscription);
-                    return result.StatusCode;
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            var result = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection), subscription);
+            return result.StatusCode;
         }     
+
+        /// <summary>
+        /// Replace account document in repository. Uses ETag match for optimistic concurrency
+        /// </summary>
+        public async Task<HttpStatusCode> ReplaceSubscriptionOptimistic(Subscription item) {
+            try {            
+                var document = (from f in this.Client.CreateDocumentQuery(
+                                this.Collection.SelfLink, new FeedOptions{ PartitionKey = new PartitionKey(item.AccountID)})
+                                where f.Id == item.Id
+                                select f).AsEnumerable().FirstOrDefault();
+
+                if (document == null) {return HttpStatusCode.NotFound;}
+
+                var editSubscription = (Subscription)(dynamic) document;
+                editSubscription.ReplaceWith(item);
+
+                var ac = new AccessCondition {Condition = document.ETag, Type = AccessConditionType.IfMatch};
+                
+                var result = await this.Client.ReplaceDocumentAsync(document.SelfLink, editSubscription, new RequestOptions {AccessCondition = ac});
+                return result.StatusCode;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message + " " + ex.StatusCode);
+                return ex.StatusCode.Value;
+            }
+        }
 
     }
 }

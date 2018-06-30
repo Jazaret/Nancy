@@ -21,9 +21,8 @@ namespace NancyApplication
             {
                 var accountId = args.accountId;
                 var topicId = args.topicId;
-                return "";
-                //string result = _subscriptionService.CreateSubscription(accountId, topicId);                
-                //return Response.AsJson(new { ConfirmationToken = result });
+                string result = _subscriptionService.CreateSubscription(accountId, topicId);                
+                return Response.AsJson(new { ConfirmationToken = result });
             });
 
             //Confirm topic subscription
@@ -31,15 +30,15 @@ namespace NancyApplication
             {
                 var confirmationToken = args.confirmationToken;
                 var accountId = args.accountId;
-                //_subscriptionService.ConfirmSubscription(confirmationToken, accountId);
-                return HttpStatusCode.OK;
+                var resultStatusCode = _subscriptionService.ConfirmSubscription(confirmationToken, accountId);
+                return resultStatusCode;        
             });
 
             //Delete topic
             Delete("Subscriptions/{accountId}/Subscription/{subscriptionId}", args => {
                 var accountId = args.accountId;
                 var subId = args.subscriptionId;
-                //_subscriptionService.DeleteSubscription(subId, accountId);
+                _subscriptionService.DeleteSubscription(subId, accountId);
                 return HttpStatusCode.OK;
             });
         }
