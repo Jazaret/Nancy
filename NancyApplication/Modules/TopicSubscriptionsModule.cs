@@ -17,22 +17,29 @@ namespace NancyApplication
             _subscriptionService = subcriptionService;
 
             //Subscribe to topic
-            Post("Topics/{topicId}/Subscribe?u={accountId}", args =>
+            Post("Subscriptions/{accountId}/Subscribe/{topicId}", args =>
             {
-                string result = _subscriptionService.CreateSubscription(args.accountId, args.topicId);
-                return Response.AsJson(new { ConfirmationToken = result });
+                var accountId = args.accountId;
+                var topicId = args.topicId;
+                return "";
+                //string result = _subscriptionService.CreateSubscription(accountId, topicId);                
+                //return Response.AsJson(new { ConfirmationToken = result });
             });
 
             //Confirm topic subscription
-            Post("Topics/Subscribe/{confirmationToken}?u={accountId}", args =>
+            Put("Subscriptions/{accountId}/Confirm/{confirmationToken}", args =>
             {
-                _subscriptionService.ConfirmSubscription(args.confirmationToken, args.accountId);
+                var confirmationToken = args.confirmationToken;
+                var accountId = args.accountId;
+                //_subscriptionService.ConfirmSubscription(confirmationToken, accountId);
                 return HttpStatusCode.OK;
             });
 
             //Delete topic
-            Delete("Topics/Subscription/{subscriptionId}?u={accountId}", args => {
-                _subscriptionService.DeleteSubscription(args.subscriptionId, args.accountId);
+            Delete("Subscriptions/{accountId}/Subscription/{subscriptionId}", args => {
+                var accountId = args.accountId;
+                var subId = args.subscriptionId;
+                //_subscriptionService.DeleteSubscription(subId, accountId);
                 return HttpStatusCode.OK;
             });
         }
