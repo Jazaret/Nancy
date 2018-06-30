@@ -16,11 +16,6 @@ namespace NancyApplication
         public void ConfigureServices(IServiceCollection services) {  
             // Add framework services.  
             services.RegisterServices();
-            services.AddDistributedRedisCache(options => {  
-                options.Configuration = "topics.redis.cache.windows.net:6380,password=mTDuw1qJqQSsm8rGNK4e7ko9csj7AJvPPpRSVCqO2CY=,ssl=True,abortConnect=False"; //Configuration.GetConnectionString("RedisConnection");  
-                options.InstanceName = "topics";
-            });
-            //services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("yourConnectionString"); todo fix or remove
         }  
     }
 
@@ -29,6 +24,8 @@ namespace NancyApplication
         public static IServiceCollection RegisterServices(
             this IServiceCollection services)
         {
+            services.AddSingleton<CacheService>();
+            
             services.AddTransient<ITopicService, TopicService>();
             services.AddTransient<ITopicRepository, TopicRepository>();
             services.AddTransient<IAccountService, AccountService>();

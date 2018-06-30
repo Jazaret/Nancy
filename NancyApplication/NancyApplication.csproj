@@ -10,7 +10,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Owin" Version="1.0.1" />
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="1.9.1" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Redis.Core" Version="1.0.3" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="2.1.1" />
     <PackageReference Include="Nancy" Version="2.0.0-clinteastwood" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />

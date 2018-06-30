@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Caching.Distributed;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
+using StackExchange.Redis;
 
 namespace NancyApplication {
     /// <summary>
@@ -9,10 +11,13 @@ namespace NancyApplication {
     public class TopicService : ITopicService
     {
         ITopicRepository _topicRepo;
-        IDistributedCache _cache;
 
+        private CacheService redisService;
+        private ConnectionMultiplexer connectionMultiplexer;
         public TopicService(ITopicRepository topicRepository) {
             _topicRepo = topicRepository;
+            redisService = new CacheService();
+            connectionMultiplexer = redisService.Connection;
         }
 
         /// <summary>
@@ -32,20 +37,53 @@ namespace NancyApplication {
         public IEnumerable<Topic> SearchForNews(string news) {
             
             string cacheResult = null;
-            if (_cache != null) {
-                cacheResult = _cache.GetString(news);
-                if (cacheResult != null) { 
-                    return JsonConvert.DeserializeObject<List<Topic>>(cacheResult);
-                }
-            }
+            
+            cacheResult = GetFromCache(news).Result;
+            if (cacheResult != null) { 
+                return JsonConvert.DeserializeObject<List<Topic>>(cacheResult);
+            }           
 
             var result = _topicRepo.SearchForTopics(news);
             
-            if (_cache != null) {
-                _cache.SetString(news,JsonConvert.SerializeObject(result));
-            }
+            var addCacheResult = AddToCache(news,JsonConvert.SerializeObject(result));
 
             return result;
+        }
+
+        private async Task<string> GetFromCache(string key)
+        {
+            if (connectionMultiplexer.IsConnected)
+            {
+                var cache = connectionMultiplexer.GetDatabase();
+                return await cache.StringGetAsync(key);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        private async Task DeleteFromCache(string subdomain)
+        {
+            if (connectionMultiplexer.IsConnected)
+            {
+                var cache = connectionMultiplexer.GetDatabase();
+                await cache.KeyDeleteAsync(subdomain).ConfigureAwait(false);
+            }
+        }
+
+        private async Task AddToCache(string key, string serializedData)
+        {
+            var GetMessagesCacheExpiryMinutes = 5;
+            if (connectionMultiplexer.IsConnected)
+            {
+                var cache = connectionMultiplexer.GetDatabase();
+
+                TimeSpan expiresIn;
+                expiresIn = new TimeSpan(0, GetMessagesCacheExpiryMinutes, 0);
+                await cache.StringSetAsync(key, serializedData, expiresIn).ConfigureAwait(false);
+
+            }
         }
     }
 }
