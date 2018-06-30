@@ -1,0 +1,16 @@
+all : cleanup restore build test
+ 
+cleanup:
+	dotnet clean
+ 
+restore:
+	dotnet restore
+ 
+build:
+	dotnet build
+
+test:
+	dotnet test
+ 
+run:
+	dotnet run --project ./NancyApplication/NancyApplication.csproj
