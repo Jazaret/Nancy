@@ -17,7 +17,7 @@ namespace NancyApplication
             _topicService = topicService;
 
             Get("/", args => { 
-                return Response.AsRedirect("Topics/");
+                return "Welcome to the Nancy API for Topics!";
             });
 
             Get("Topics/", args => {
