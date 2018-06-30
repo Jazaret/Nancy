@@ -2,8 +2,11 @@ namespace NancyApplication
 {
     using Microsoft.Extensions.Caching.Distributed;
     using Nancy;
+    using Nancy.IO;
     using System;
     using System.Collections.Generic;
+    using System.Collections.Specialized;
+    using System.Web;
 
 
     /// <summary>
@@ -17,17 +20,23 @@ namespace NancyApplication
         {
             _accountService = accountService;
 
-            Post("Account/Add/Name={name}", args =>
+            Post("Account/Add", args =>
             {
-                var password = Request.Body.ToString();
-                Account result = _accountService.AddAccount(args.name, password);
+                var request = Nancy.Extensions.RequestStreamExtensions.AsString(Nancy.IO.RequestStream.FromStream(this.Request.Body));
+                NameValueCollection coll = HttpUtility.ParseQueryString(request);
+                var name = coll["name"];
+                var pwd = coll["pwd"];
+                Account result = _accountService.AddAccount(name,pwd);
                 return Response.AsJson(result);
             });
 
-            Put("Account/{accountId}/Update/Name={name}", args =>
+            Put("Account/{accountId}/Update", args =>
             {
-                var password = Request.Body.ToString();
-                _accountService.UpdateAccount(args.accountId, args.name, password);
+                var request = Nancy.Extensions.RequestStreamExtensions.AsString(Nancy.IO.RequestStream.FromStream(this.Request.Body));
+                NameValueCollection coll = HttpUtility.ParseQueryString(request);
+                var name = coll["name"];
+                var pwd = coll["pwd"];
+                _accountService.UpdateAccount(args.accountId, name, pwd);
                 return HttpStatusCode.OK;
             });
         }
