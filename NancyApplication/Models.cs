@@ -6,12 +6,12 @@ namespace NancyApplication {
     {
         [JsonProperty(PropertyName = "id")]
         public string ID {get; set;}
-        public string AccountName {get;set;}
+        public string Name {get;set;}
         /// <summary>
         /// Ignore password field when returned to JSON
         /// </summary>
         [JsonIgnore]
-        public string AccountPassword {get;set;}
+        public string Password {get;set;}
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
@@ -20,10 +20,10 @@ namespace NancyApplication {
             if (string.IsNullOrWhiteSpace(ID)) {
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(AccountName)) {
+            if (string.IsNullOrWhiteSpace(Name)) {
                 return false;
             }
-            if (string.IsNullOrWhiteSpace(AccountPassword)) {
+            if (string.IsNullOrWhiteSpace(Password)) {
                 return false;
             }
             return true;

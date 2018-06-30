@@ -20,8 +20,8 @@ namespace NancyApplication {
         {
             var account = new Account{
                 ID = Guid.NewGuid().ToString(),
-                AccountName = accountName,
-                AccountPassword = accountPassword
+                Name = accountName,
+                Password = accountPassword
             };            
 
             if (!account.IsValid()) {
@@ -41,8 +41,8 @@ namespace NancyApplication {
         {
              var account = new Account{
                 ID = accountId,
-                AccountName = accountName,
-                AccountPassword = accountPassword
+                Name = accountName,
+                Password = accountPassword
             };
 
             if (!account.IsValid()) {
