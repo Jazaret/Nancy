@@ -14,16 +14,9 @@ namespace NancyApplication {
         }
         
         public string CreateSubscription(string accountId, string topicId) {
-            var confirmationToken = Guid.NewGuid().ToString();
-            var subscription = new Subscription {
-                ID = Guid.NewGuid().ToString(),
-                AccountID = accountId,
-                TopicID = topicId,
-                ConfirmationToken = confirmationToken,
-                SubscriptionConfirmed = false
-            };
+            var subscription = new Subscription(topicId,accountId);
             _subRepo.AddSubscription(subscription);
-            return confirmationToken;
+            return subscription.ConfirmationToken;
         }
 
         /// <summary>

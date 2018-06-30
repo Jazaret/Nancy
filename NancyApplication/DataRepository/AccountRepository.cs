@@ -45,7 +45,7 @@ namespace NancyApplication
 
         private async Task ReplaceDocument(Account account)
         {
-            await this.client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, AccountsCollection, account.ID), account);
+            await this.client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, AccountsCollection, account.Id), account);
         }  
 
         private async Task CreateDocument(Account account)

@@ -18,11 +18,7 @@ namespace NancyApplication {
         /// </summary>
         public Account AddAccount(string accountName, string accountPassword)
         {
-            var account = new Account{
-                ID = Guid.NewGuid().ToString(),
-                Name = accountName,
-                Password = accountPassword
-            };            
+            var account = new Account(accountName,accountPassword);
 
             if (!account.IsValid()) {
                 //return invalid response code 400
@@ -39,11 +35,7 @@ namespace NancyApplication {
         /// </summary>
         public Account UpdateAccount(string accountId, string accountName, string accountPassword)
         {
-             var account = new Account{
-                ID = accountId,
-                Name = accountName,
-                Password = accountPassword
-            };
+            var account = new Account(accountId,accountName,accountPassword);
 
             if (!account.IsValid()) {
                 //return invalid response code 400

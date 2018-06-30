@@ -44,7 +44,7 @@ namespace NancyApplication
         /// <param name="subscription"></param>
         /// <returns></returns>
         public async Task UpdateSubscription(Subscription subscription) {
-            await this.client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, TopicsDB, subscription.ID), subscription);
+            await this.client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, TopicsDB, subscription.Id), subscription);
         }
 
         /// <summary>
@@ -70,7 +70,7 @@ namespace NancyApplication
         {
             try
             {
-                await client.ReadDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, SubscriptionCollection, subscription.ID),new RequestOptions { PartitionKey = new PartitionKey(subscription.AccountID) });
+                await client.ReadDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, SubscriptionCollection, subscription.Id),new RequestOptions { PartitionKey = new PartitionKey(subscription.AccountID) });
             }
             catch (DocumentClientException de)
             {
