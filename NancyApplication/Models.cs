@@ -7,11 +7,8 @@ namespace NancyApplication {
         [JsonProperty(PropertyName = "id")]
         public string Id {get; set;}
         public string Name {get;set;}
+        [JsonProperty(PropertyName = "_etag")]
         public string ETag { get; set; }
-        /// <summary>
-        /// Ignore password field when returned to JSON
-        /// </summary>
-        [JsonIgnore]
         public string Password {get;set;}
         public Account(string id, string name, string password)
         {
