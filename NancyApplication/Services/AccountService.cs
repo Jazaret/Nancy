@@ -44,7 +44,8 @@ namespace NancyApplication {
             
             try {
                 _accountRepo.UpdateAccount(account).Wait();
-            } catch {
+            } catch (Exception ex) {
+                Console.WriteLine(ex.InnerException.Message);
                 //handle 
             }
             

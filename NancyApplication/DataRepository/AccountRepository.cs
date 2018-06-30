@@ -26,7 +26,7 @@ namespace NancyApplication
         {
             DocumentCollection accuonts = new DocumentCollection();
             accuonts.Id = AccountsCollection;
-            await this.Client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(TopicsDB), new DocumentCollection { Id = AccountsCollection });
+            this.Collection = await this.Client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(TopicsDB), new DocumentCollection { Id = AccountsCollection });
         }
 
         /// <summary>
@@ -40,18 +40,8 @@ namespace NancyApplication
         /// Update Account document in the repository. Note - password should be stored with salt and hash
         /// </summary>
         public async Task<HttpStatusCode> UpdateAccount(Account account) {
-            return await ReplaceDocument(account);
+            return await ReplaceAccountOptimistic(account);
         }
-
-        /// <summary>
-        /// Replace account document in repository. Uses ETag match for optimistic concurrency
-        /// </summary>
-        private async Task<HttpStatusCode> ReplaceDocument(Account account)
-        {
-            var ac = new AccessCondition {Condition = account.ETag, Type = AccessConditionType.IfMatch};
-            var result = await this.Client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, AccountsCollection, account.Id), account, new RequestOptions {AccessCondition = ac});
-            return result.StatusCode;
-        }  
 
         /// <summary>
         /// Creates the account document in the repository
@@ -60,6 +50,31 @@ namespace NancyApplication
         {
             var result = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, AccountsCollection), account);
             return result.StatusCode;
-        }               
+        }
+
+        /// <summary>
+        /// Replace account document in repository. Uses ETag match for optimistic concurrency
+        /// </summary>
+        public async Task<HttpStatusCode> ReplaceAccountOptimistic(Account item) {
+
+            var document = (from f in this.Client.CreateDocumentQuery(this.Collection.SelfLink)
+                            where f.Id == item.Id
+                            select f).AsEnumerable().FirstOrDefault();
+
+            if (document == null) {return HttpStatusCode.NotFound;}
+
+            var editAccount = (Account)(dynamic) document;
+            editAccount.ReplaceWith(item);
+
+            var ac = new AccessCondition {Condition = document.ETag, Type = AccessConditionType.IfMatch};
+            try {
+                var result = await this.Client.ReplaceDocumentAsync(document.SelfLink, editAccount, new RequestOptions {AccessCondition = ac});
+
+                return result.StatusCode;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message);
+                return HttpStatusCode.Conflict;
+            }
+        }
     }
 }

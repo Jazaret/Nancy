@@ -7,19 +7,18 @@ namespace NancyApplication {
         [JsonProperty(PropertyName = "id")]
         public string Id {get; set;}
         public string Name {get;set;}
-        [JsonProperty(PropertyName = "_etag")]
-        public string ETag { get; set; }
         public string Password {get;set;}
+        public Account() {}
         public Account(string id, string name, string password)
         {
-            Id = id;
-            Name = name;
-            Password = password;
+            this.Id = id;
+            this.Name = name;
+            this.Password = password;
         }
         public Account(string name, string password) {
-            Id = Guid.NewGuid().ToString();
-            Name = name;
-            Password = password;
+            this.Id = Guid.NewGuid().ToString();
+            this.Name = name;
+            this.Password = password;
         }
         public override string ToString()
         {
@@ -37,6 +36,11 @@ namespace NancyApplication {
             }
             return true;
         }
+        public void ReplaceWith(Account newAccount) {
+            this.Name = newAccount.Name;
+            this.Password = newAccount.Password;
+        }
+
     }
 
     public class Topic
@@ -60,25 +64,27 @@ namespace NancyApplication {
 
         public bool SubscriptionConfirmed { get; set; }
         public string ETag { get; set; }
+
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
         }
+        public Subscription() {}
         public Subscription(string id, string topicID, string accountID, string confirmationToken, bool confirmed)
         {
-            Id = id;
-            TopicID = topicID;
-            AccountID = accountID;
-            ConfirmationToken = confirmationToken;
-            SubscriptionConfirmed = confirmed;
+            this.Id = id;
+            this.TopicID = topicID;
+            this.AccountID = accountID;
+            this.ConfirmationToken = confirmationToken;
+            this.SubscriptionConfirmed = confirmed;
         }
         public Subscription(string topicID, string accountID)
         {
-            Id = Guid.NewGuid().ToString();
-            TopicID = topicID;
-            AccountID = accountID;
-            ConfirmationToken = Guid.NewGuid().ToString();
-            SubscriptionConfirmed = false;
+            this.Id = Guid.NewGuid().ToString();
+            this.TopicID = topicID;
+            this.AccountID = accountID;
+            this.ConfirmationToken = Guid.NewGuid().ToString();
+            this.SubscriptionConfirmed = false;
         }        
     }
 
