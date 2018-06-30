@@ -17,15 +17,27 @@ namespace NancyApplication
         protected const string EndpointUrl = "https://topics.documents.azure.com:443/";
         protected const string PrimaryKey = "LmX3kOe6k6DADHOQbehETuHo09Evi3AVzEN2JhZL2Ax9XONxmmUgALHMOhfTbR2rPw5Xv6byrC5xsvAhRUSVXA==";
 
-        protected DocumentClient client;    
+        protected DocumentClient Client;    
+        protected DocumentCollection Collection;
 
         /// <summary>
         /// creates a Dyanmo document client and creates the db if it does not exist
         /// </summary>
         protected BaseRepository() {
-            this.client = new DocumentClient(new Uri(EndpointUrl), PrimaryKey);
-            this.client.CreateDatabaseIfNotExistsAsync(new Database { Id = TopicsDB });
-        }           
+            this.Client = new DocumentClient(new Uri(EndpointUrl), PrimaryKey);
+            this.Client.CreateDatabaseIfNotExistsAsync(new Database { Id = TopicsDB });
+        }          
+
+        protected async Task<DocumentCollection> GetOrCreateCollectionAsync(string databaseId, string collectionId)
+        {
+            var databaseUri = UriFactory.CreateDatabaseUri(databaseId);
+
+            var collection = Client.CreateDocumentCollectionQuery(databaseUri)
+                                 .Where(c => c.Id == collectionId).AsEnumerable().FirstOrDefault() ??
+                             await Client.CreateDocumentCollectionAsync(databaseUri, new DocumentCollection { Id = collectionId });
+
+            return collection;
+        }
 
     }    
 }

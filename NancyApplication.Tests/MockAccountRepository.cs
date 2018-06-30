@@ -1,15 +1,16 @@
+using System.Net;
 using System.Threading.Tasks;
 using NancyApplication;
 
 namespace NancyApplication.Tests {
     public class MockAccountRepository : IAccountRepository
     {
-        public Task AddAccount(Account account)
+        public Task<HttpStatusCode> AddAccount(Account account)
         {
             return null;
         }
 
-        public Task UpdateAccount(Account account)
+        public Task<HttpStatusCode> UpdateAccount(Account account)
         {
             return null;
         }

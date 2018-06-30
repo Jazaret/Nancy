@@ -7,6 +7,7 @@ namespace NancyApplication {
         [JsonProperty(PropertyName = "id")]
         public string Id {get; set;}
         public string Name {get;set;}
+        public string ETag { get; set; }
         /// <summary>
         /// Ignore password field when returned to JSON
         /// </summary>
@@ -61,6 +62,7 @@ namespace NancyApplication {
         public string ConfirmationToken { get; set; }
 
         public bool SubscriptionConfirmed { get; set; }
+        public string ETag { get; set; }
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);

@@ -27,7 +27,7 @@ namespace NancyApplication
         {
             DocumentCollection topics = new DocumentCollection();
             topics.Id = TopicsCollection;
-            await this.client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(TopicsDB), new DocumentCollection { Id = TopicsCollection });
+            await this.Client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(TopicsDB), new DocumentCollection { Id = TopicsCollection });
         }
 
         /// <summary>
@@ -36,8 +36,7 @@ namespace NancyApplication
         /// <returns>All topics</returns>
         IEnumerable<Topic> ITopicRepository.GetTopics()
         {
-            var result = this.client.CreateDocumentQuery<Topic>(
-                    UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection)).ToList();
+            var result = this.Client.CreateDocumentQuery<Topic>(UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection)).ToList();
 
             return result;
         }
@@ -49,7 +48,7 @@ namespace NancyApplication
         /// <returns>topics that contains the parameter</returns>
         public IEnumerable<Topic> SearchForTopics(string news)
         {
-            var result = this.client.CreateDocumentQuery<Topic>(
+            var result = this.Client.CreateDocumentQuery<Topic>(
                     UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
                     .Where(f => f.Name.Contains(news)).ToList();
             return result;

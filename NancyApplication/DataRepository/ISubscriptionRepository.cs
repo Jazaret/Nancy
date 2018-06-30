@@ -1,12 +1,13 @@
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace NancyApplication {
     public interface ISubscriptionRepository
     {
-        Task AddSubscription(Subscription Subscription);
-        Task DeleteSubscription(string subscriptionId, string accountId);
+        Task<HttpStatusCode> AddSubscription(Subscription Subscription);
+        Task<HttpStatusCode> DeleteSubscription(string subscriptionId, string accountId);
         Subscription GetSubscription(string confirmationToken, string accountId);
-        Task UpdateSubscription(Subscription subcription);
+        Task<HttpStatusCode> UpdateSubscription(Subscription subcription);
     }
 }

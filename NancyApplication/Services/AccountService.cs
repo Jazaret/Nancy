@@ -42,7 +42,11 @@ namespace NancyApplication {
                 throw new Exception("Invalid account data");
             }
             
-            _accountRepo.UpdateAccount(account);
+            try {
+                _accountRepo.UpdateAccount(account).Wait();
+            } catch {
+                //handle 
+            }
             
             return account;
         }

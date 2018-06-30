@@ -26,31 +26,40 @@ namespace NancyApplication
         {
             DocumentCollection accuonts = new DocumentCollection();
             accuonts.Id = AccountsCollection;
-            await this.client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(TopicsDB), new DocumentCollection { Id = AccountsCollection });
+            await this.Client.CreateDocumentCollectionIfNotExistsAsync(UriFactory.CreateDatabaseUri(TopicsDB), new DocumentCollection { Id = AccountsCollection });
         }
 
         /// <summary>
         /// Adds an account object to the repository. Note - password should be stored with salt and hash
         /// </summary>
-        public async Task AddAccount(Account account) {
-            await CreateDocument(account);            
+        public async Task<HttpStatusCode> AddAccount(Account account) {
+            return await CreateDocument(account);            
         }
 
         /// <summary>
         /// Update Account document in the repository. Note - password should be stored with salt and hash
         /// </summary>
-        public async Task UpdateAccount(Account account) {
-            await ReplaceDocument(account);
+        public async Task<HttpStatusCode> UpdateAccount(Account account) {
+            return await ReplaceDocument(account);
         }
 
-        private async Task ReplaceDocument(Account account)
+        /// <summary>
+        /// Replace account document in repository. Uses ETag match for optimistic concurrency
+        /// </summary>
+        private async Task<HttpStatusCode> ReplaceDocument(Account account)
         {
-            await this.client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, AccountsCollection, account.Id), account);
+            var ac = new AccessCondition {Condition = account.ETag, Type = AccessConditionType.IfMatch};
+            var result = await this.Client.ReplaceDocumentAsync(UriFactory.CreateDocumentUri(TopicsDB, AccountsCollection, account.Id), account, new RequestOptions {AccessCondition = ac});
+            return result.StatusCode;
         }  
 
-        private async Task CreateDocument(Account account)
+        /// <summary>
+        /// Creates the account document in the repository
+        /// </summary>
+        private async Task<HttpStatusCode> CreateDocument(Account account)
         {
-            await this.client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, AccountsCollection), account);
+            var result = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, AccountsCollection), account);
+            return result.StatusCode;
         }               
     }
 }
