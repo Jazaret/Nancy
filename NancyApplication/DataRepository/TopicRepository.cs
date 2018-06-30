@@ -35,7 +35,7 @@ namespace NancyApplication
         /// </summary>
         /// <returns>All topics</returns>
         IEnumerable<Topic> ITopicRepository.GetTopics()
-        {
+        {            
             var result = this.Client.CreateDocumentQuery<Topic>(UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection)).ToList();
 
             return result;
@@ -53,5 +53,11 @@ namespace NancyApplication
                     .Where(f => f.Name.Contains(news)).ToList();
             return result;
         }    
+
+        private async Task<HttpStatusCode> CreateDocument(Topic topic)
+        {
+            var result = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection), topic);
+            return result.StatusCode;
+        }  
     }
 }
