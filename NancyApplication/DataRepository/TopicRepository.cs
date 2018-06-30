@@ -8,7 +8,6 @@ namespace NancyApplication
     using Microsoft.Azure.Documents;
     using Microsoft.Azure.Documents.Client;
     using Newtonsoft.Json;
-    using Microsoft.Extensions.Caching.Distributed;
 
     /// <summary>
     /// Repository that handles the operations for the Topic documents in DynamoDB

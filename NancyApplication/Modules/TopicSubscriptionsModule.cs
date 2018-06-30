@@ -1,6 +1,5 @@
 namespace NancyApplication
 {
-    using Microsoft.Extensions.Caching.Distributed;
     using Nancy;
     using System;
     using System.Collections.Generic;
