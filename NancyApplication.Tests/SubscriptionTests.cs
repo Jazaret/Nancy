@@ -27,7 +27,8 @@ namespace NancyApplication.Tests
         public void AssertAddSubscriptionCallsRepo()
         {
             //Given
-            _mockTopicRepo.Setup(m => m.GetTopic(subTopicId)).Returns(new Topic());
+            var ar = new ActionResult<Topic>() {resposeObject= new Topic(), statusCode = HttpStatusCode.OK};
+            _mockTopicRepo.Setup(m => m.GetTopic(subTopicId)).Returns(ar);
 
             //When
             var result = _subscriptionService.CreateSubscription(subAccountId,subTopicId);
@@ -45,7 +46,8 @@ namespace NancyApplication.Tests
         public void AssertAddSubscriptionWithExistingSubScriptioncDoesNotCallAddSubcription()
         {
             //Given
-            _mockTopicRepo.Setup(m => m.GetTopic(subTopicId)).Returns(new Topic());
+            var ar = new ActionResult<Topic>() {resposeObject= new Topic(), statusCode = HttpStatusCode.OK};
+            _mockTopicRepo.Setup(m => m.GetTopic(subTopicId)).Returns(ar);
             _mockSubRepo.Setup(m => m.GetSubscriptionByTopic(subTopicId,subAccountId)).Returns(new Subscription());
 
             //When

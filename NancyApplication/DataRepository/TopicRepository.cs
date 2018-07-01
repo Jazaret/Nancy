@@ -33,11 +33,23 @@ namespace NancyApplication
         /// Get list of all topics in document collection
         /// </summary>
         /// <returns>All topics</returns>
-        IEnumerable<Topic> ITopicRepository.GetTopics()
-        {            
-            var result = this.Client.CreateDocumentQuery<Topic>(UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection)).ToList();
-
-            return result;
+        ActionResult<IEnumerable<Topic>> ITopicRepository.GetTopics()
+        {   
+            var result = new ActionResult<IEnumerable<Topic>>();
+            try {
+                var queryResult = this.Client.CreateDocumentQuery<Topic>(UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection)).ToList();
+                result.resposeObject = queryResult;
+                result.statusCode = HttpStatusCode.OK;
+                return result;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message + " " + ex.StatusCode);
+                result.statusCode = ex.StatusCode.Value;
+                return result;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                result.statusCode = HttpStatusCode.InternalServerError;
+                return result;
+            }
         }
 
         /// <summary>
@@ -45,12 +57,25 @@ namespace NancyApplication
         /// </summary>
         /// <param name="news">news for which to search across all topics</param>
         /// <returns>topics that contains the parameter</returns>
-        public IEnumerable<Topic> SearchForTopics(string news)
+        public ActionResult<IEnumerable<Topic>> SearchForTopics(string news)
         {
-            var result = this.Client.CreateDocumentQuery<Topic>(
-                    UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
-                    .Where(f => f.Name.Contains(news)).ToList();
-            return result;
+            var result = new ActionResult<IEnumerable<Topic>>();
+            try {
+                var queryResult = this.Client.CreateDocumentQuery<Topic>(
+                        UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
+                        .Where(f => f.Name.Contains(news)).ToList();
+                result.resposeObject = queryResult;
+                result.statusCode = HttpStatusCode.OK;
+                return result;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message + " " + ex.StatusCode);
+                result.statusCode = ex.StatusCode.Value;
+                return result;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                result.statusCode = HttpStatusCode.InternalServerError;
+                return result;
+            }
         }    
 
         private async Task<HttpStatusCode> CreateDocument(Topic topic)
@@ -59,10 +84,23 @@ namespace NancyApplication
             return result.StatusCode;
         }
 
-        public Topic GetTopic(string id) {
-            return this.Client.CreateDocumentQuery<Topic>(
-                UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
-                .Where(t => t.ID == id).AsEnumerable().FirstOrDefault();       
+        public ActionResult<Topic> GetTopic(string id) {
+            var result = new ActionResult<Topic>();
+            try {
+                var createReult = this.Client.CreateDocumentQuery<Topic>(
+                    UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
+                    .Where(t => t.ID == id).AsEnumerable().FirstOrDefault();
+                result.statusCode = HttpStatusCode.OK;      
+                return result;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message + " " + ex.StatusCode);
+                result.statusCode = ex.StatusCode.Value;
+                return result;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                result.statusCode = HttpStatusCode.InternalServerError;
+                return result;
+            }
         }
     }
 }

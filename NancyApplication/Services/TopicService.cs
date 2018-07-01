@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using StackExchange.Redis;
@@ -22,9 +23,9 @@ namespace NancyApplication {
         /// Get list of all topics
         /// </summary>
         /// <returns>list of all topics</returns>
-        public IEnumerable<Topic> GetAllTopics()
+        public ActionResult<IEnumerable<Topic>> GetAllTopics()
         {
-            return _topicRepo.GetTopics();
+            return  _topicRepo.GetTopics();
         }
 
         /// <summary>
@@ -32,18 +33,20 @@ namespace NancyApplication {
         /// </summary>
         /// <param name="news">paramter to search for</param>
         /// <returns>list of topics that contains parameter string</returns>
-        public IEnumerable<Topic> SearchForNews(string news) {
-            
+        public ActionResult<IEnumerable<Topic>> SearchForNews(string news) {
+
             string cacheResult = null;
             
             cacheResult = _cacheService.GetFromCache(news).Result;
             if (cacheResult != null) { 
-                return JsonConvert.DeserializeObject<List<Topic>>(cacheResult);
+                return JsonConvert.DeserializeObject<ActionResult<IEnumerable<Topic>>>(cacheResult);
             }
 
             var result = _topicRepo.SearchForTopics(news);
-            
-            var addCacheResult = _cacheService.AddToCache(news,JsonConvert.SerializeObject(result));
+
+            if (result != null && result.statusCode == HttpStatusCode.OK) {
+                var addCacheResult = _cacheService.AddToCache(news,JsonConvert.SerializeObject(result));
+            }
 
             return result;
         }

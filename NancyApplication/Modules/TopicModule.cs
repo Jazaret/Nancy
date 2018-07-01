@@ -19,8 +19,14 @@ namespace NancyApplication
                 return "Welcome to the Nancy API for Topics!";
             });
 
+            /// <summary>
+            /// Get all topics in repository
+            /// </summary>
             Get("Topics/", args => {
-                var list = topicService.GetAllTopics();
+                var getResponse = topicService.GetAllTopics();
+                if (getResponse.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) {
+                    return getResponse.statusCode;
+                }
                 var links = new List<HyperMedia>{
                     new HyperMedia { 
                         Href = this.Request.Url, 
@@ -31,12 +37,18 @@ namespace NancyApplication
                         Rel = "search" 
                     }
                 };
-                var topicList = new TopicList(list,links);
+                var topicList = new TopicList(getResponse.resposeObject,links);
                 return Response.AsJson(topicList);
             });
             
+            /// <summary>
+            /// Search for topics in repository. 
+            /// </summary>
             Get("Topics/Search", args => {
-                var list = topicService.SearchForNews(this.Request.Query["q"]);
+                var getResponse = topicService.SearchForNews(this.Request.Query["q"]);
+                if (getResponse.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) {
+                    return getResponse.statusCode;
+                }
                 var links = new List<HyperMedia>{
                     new HyperMedia { 
                         Href = this.Request.Url, 
@@ -47,7 +59,7 @@ namespace NancyApplication
                         Rel = "index" 
                     }
                 };
-                var topicList = new TopicList(list,links);
+                var topicList = new TopicList(getResponse.resposeObject,links);
                 return Response.AsJson(topicList);
             });
         }

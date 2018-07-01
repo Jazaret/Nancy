@@ -3,6 +3,7 @@ using System.Collections.Generic;
 namespace NancyApplication {
     using System;
     using System.Collections.Generic;
+    using System.Net;
     using Newtonsoft.Json;
 
     public class Account 
@@ -113,4 +114,14 @@ namespace NancyApplication {
             this.links = links;
         }
     }    
+
+    public class ActionResult<T> {
+        public T resposeObject;
+        public HttpStatusCode statusCode { get; set; }
+        public ActionResult() {}
+    }
+
+    public class ActionResult {
+        public HttpStatusCode statusCode { get; set; }
+    }
 }

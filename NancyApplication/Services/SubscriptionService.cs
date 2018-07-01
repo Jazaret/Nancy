@@ -23,8 +23,10 @@ namespace NancyApplication {
         /// <returns>new created subscription if successful</returns>
         public Subscription CreateSubscription(string accountId, string topicId) {
             //Verify topic exists
-            var topic = _topicRepo.GetTopic(topicId);
-            if (topic == null) { return null; }
+            var getTopicResponse = _topicRepo.GetTopic(topicId);
+            if (getTopicResponse ==  null || getTopicResponse.resposeObject == null) { 
+                return null; 
+            }
             //See if subscription already exists for this account/topic
             var existingSub = _subRepo.GetSubscriptionByTopic(topicId,accountId);
             if (existingSub != null) { return null; }

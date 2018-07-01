@@ -3,8 +3,8 @@ using System.Collections.Generic;
 namespace NancyApplication {
     public interface ITopicRepository
     {
-        IEnumerable<Topic> GetTopics();
-        IEnumerable<Topic> SearchForTopics(string news);
-        Topic GetTopic(string id);
+        ActionResult<IEnumerable<Topic>> GetTopics();
+        ActionResult<IEnumerable<Topic>> SearchForTopics(string news);
+        ActionResult<Topic> GetTopic(string id);
     }
 }
