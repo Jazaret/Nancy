@@ -87,10 +87,11 @@ namespace NancyApplication
         public ActionResult<Topic> GetTopic(string id) {
             var result = new ActionResult<Topic>();
             try {
-                var createReult = this.Client.CreateDocumentQuery<Topic>(
+                var queryResult = this.Client.CreateDocumentQuery<Topic>(
                     UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
                     .Where(t => t.ID == id).AsEnumerable().FirstOrDefault();
-                result.statusCode = HttpStatusCode.OK;      
+                result.statusCode = queryResult == null ? HttpStatusCode.NotFound : HttpStatusCode.OK;
+                result.resposeObject = queryResult;
                 return result;
             } catch (DocumentClientException ex) {
                 Console.WriteLine(ex.Message + " " + ex.StatusCode);

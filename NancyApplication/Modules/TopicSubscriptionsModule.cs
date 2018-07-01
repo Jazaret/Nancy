@@ -20,10 +20,13 @@ namespace NancyApplication
             {
                 var accountId = args.accountId;
                 var topicId = args.topicId;
-                var result = _subscriptionService.CreateSubscription(accountId, topicId); 
-                if (result == null) { return HttpStatusCode.InternalServerError; }
-                var confirmationToken = result.ConfirmationToken;  
-                var subId = result.Id;
+                ActionResult<Subscription> result = _subscriptionService.CreateSubscription(accountId, topicId); 
+                if (result.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.Created){
+                    return result.statusCode;
+                }
+                var subscription = result.resposeObject;
+                var confirmationToken = subscription.ConfirmationToken;  
+                var subId = subscription.Id;
                 var links = new List<HyperMedia>{
                     new HyperMedia { 
                         Href = this.Request.Url, 
@@ -46,19 +49,25 @@ namespace NancyApplication
             {
                 var confirmationToken = args.confirmationToken;
                 var accountId = args.accountId;
-                var resultStatusCode = _subscriptionService.ConfirmSubscription(confirmationToken, accountId);
-                if (resultStatusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) 
+                ActionResult<Subscription> result = _subscriptionService.ConfirmSubscription(confirmationToken, accountId);
+                if (result.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) 
                 {
                     //If status is Precondition failed then there is a concurrency violation.
-                    if (resultStatusCode == (System.Net.HttpStatusCode)HttpStatusCode.PreconditionFailed) {
+                    if (result.statusCode == (System.Net.HttpStatusCode)HttpStatusCode.PreconditionFailed) {
                         return "There is an update conflit on this subscription. Please refresh the status of the subscription and try again";
                     }
-                    return resultStatusCode;
+                    return result.statusCode;
                 }
+                var subscription = result.resposeObject;
+                var subId = subscription.Id;
                 var links = new List<HyperMedia>{
                     new HyperMedia { 
                         Href = this.Request.Url, 
                         Rel = "self" 
+                    },
+                    new HyperMedia {
+                        Href = $"{this.Request.Url.SiteBase}/Subscriptions/{accountId}/Subscription/{subId}", 
+                        Rel = "delete"
                     }
                 };             
                 return Response.AsJson(links);        
@@ -68,8 +77,8 @@ namespace NancyApplication
             Delete("Subscriptions/{accountId}/Subscription/{subscriptionId}", args => {
                 var accountId = args.accountId;
                 var subId = args.subscriptionId;
-                _subscriptionService.DeleteSubscription(subId, accountId);
-                return HttpStatusCode.OK;
+                var result = _subscriptionService.DeleteSubscription(subId, accountId);
+                return result;
             });
         }
     }

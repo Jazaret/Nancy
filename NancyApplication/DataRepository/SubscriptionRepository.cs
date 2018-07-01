@@ -37,9 +37,23 @@ namespace NancyApplication
         /// Adds subscription document to the collection and sets the Subscription to unconfirmed until the ConfirmSubscription method is called.
         /// </summary>
         /// <returns>the confirmationToken the user must specify when confirming subscription</returns>
-        public async Task<HttpStatusCode> AddSubscription(Subscription subscription)
+        public async Task<ActionResult<Subscription>> AddSubscription(Subscription subscription)
         {
-            return await CreateSubscriptionDocument(subscription);
+            var result = new ActionResult<Subscription>();
+            try {
+                var createResult = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection), subscription);
+                result.resposeObject = (Subscription)(dynamic)createResult.Resource;
+                result.statusCode = HttpStatusCode.Created;
+                return result;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message + " " + ex.StatusCode);
+                result.statusCode = ex.StatusCode.Value;
+                return result;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                result.statusCode = HttpStatusCode.InternalServerError;
+                return result;
+            }
         }
 
         /// <summary>
@@ -47,26 +61,54 @@ namespace NancyApplication
         /// </summary>
         /// <param name="subscription"></param>
         /// <returns></returns>
-        public async Task<HttpStatusCode> UpdateSubscription(Subscription subscription) {
+        public async Task<ActionResult<Subscription>> UpdateSubscription(Subscription subscription) {
             return await ReplaceSubscriptionOptimistic(subscription);
         }
 
         /// <summary>
         /// Retrieves a subscription document using the confirmation token and the accountid
         /// </summary>
-        public Subscription GetSubscriptionByConfirmation(string confirmationToken, string accountId) {
-            return this.Client.CreateDocumentQuery<Subscription>(
-                UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection))
-                .Where(c => c.ConfirmationToken == confirmationToken && c.AccountID == accountId).AsEnumerable().FirstOrDefault();                 
+        public ActionResult<Subscription> GetSubscriptionByConfirmation(string confirmationToken, string accountId) {
+            var result = new ActionResult<Subscription>();
+            try {
+                var createResult = this.Client.CreateDocumentQuery<Subscription>(
+                    UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection))
+                    .Where(c => c.ConfirmationToken == confirmationToken && c.AccountID == accountId).AsEnumerable().FirstOrDefault();  
+                result.statusCode = HttpStatusCode.Created;
+                result.resposeObject = createResult;               
+                return result;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message + " " + ex.StatusCode);
+                result.statusCode = ex.StatusCode.Value;
+                return result;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                result.statusCode = HttpStatusCode.InternalServerError;
+                return result;
+            }
         }
 
         /// <summary>
         /// Retrieves a subscription document using the topic id and the accountid
         /// </summary>
-        public Subscription GetSubscriptionByTopic(string topicId, string accountId) {
-            return this.Client.CreateDocumentQuery<Subscription>(
+        public ActionResult<Subscription> GetSubscriptionByTopic(string topicId, string accountId) {
+            var result = new ActionResult<Subscription>();
+            try {
+                var queryResult = this.Client.CreateDocumentQuery<Subscription>(
                 UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection))
-                .Where(c => c.TopicID == topicId && c.AccountID == accountId).AsEnumerable().FirstOrDefault();                 
+                .Where(c => c.TopicID == topicId && c.AccountID == accountId).AsEnumerable().FirstOrDefault();  
+                result.statusCode = queryResult == null ? HttpStatusCode.NotFound : HttpStatusCode.OK;
+                result.resposeObject = queryResult;
+                return result;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message + " " + ex.StatusCode);
+                result.statusCode = ex.StatusCode.Value;
+                return result;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                result.statusCode = HttpStatusCode.InternalServerError;
+                return result;
+            }                
         }        
 
         /// <summary>
@@ -92,50 +134,40 @@ namespace NancyApplication
         }
 
         /// <summary>
-        /// Create Subscription document in collection.
-        /// </summary>
-        private async Task<HttpStatusCode> CreateSubscriptionDocument(Subscription subscription)
-        {
-            try {
-                var result = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection), subscription);
-                return result.StatusCode;
-            } catch (DocumentClientException ex) {
-                Console.WriteLine(ex.Message);
-                return ex.StatusCode.Value;
-            } 
-            catch (Exception ex) {
-                Console.WriteLine(ex.Message);
-                return HttpStatusCode.InternalServerError;
-            }
-        }     
-
-        /// <summary>
         /// Replace account document in repository. Uses ETag match for optimistic concurrency
         /// </summary>
-        public async Task<HttpStatusCode> ReplaceSubscriptionOptimistic(Subscription item) {
+        public async Task<ActionResult<Subscription>> ReplaceSubscriptionOptimistic(Subscription item) {
+            
+            var result = new ActionResult<Subscription>();
             try {            
                 var document = (from f in this.Client.CreateDocumentQuery(
                                 this.Collection.SelfLink, new FeedOptions{ PartitionKey = new PartitionKey(item.AccountID)})
                                 where f.Id == item.Id
                                 select f).AsEnumerable().FirstOrDefault();
 
-                if (document == null) {return HttpStatusCode.NotFound;}
+                if (document == null) {
+                    result.statusCode = HttpStatusCode.NotFound;
+                    return result;
+                }
 
                 var editSubscription = (Subscription)(dynamic) document;
                 editSubscription.ReplaceWith(item);
 
                 var ac = new AccessCondition {Condition = document.ETag, Type = AccessConditionType.IfMatch};
                 
-                var result = await this.Client.ReplaceDocumentAsync(document.SelfLink, editSubscription, new RequestOptions {AccessCondition = ac});
-                return result.StatusCode;
+                var replaceResult = await this.Client.ReplaceDocumentAsync(document.SelfLink, editSubscription, new RequestOptions {AccessCondition = ac});
+                result.resposeObject = (Subscription)(dynamic)replaceResult.Resource;
+                result.statusCode = replaceResult.StatusCode;
+                return result;
             } catch (DocumentClientException ex) {
                 Console.WriteLine(ex.Message + " " + ex.StatusCode);
-                return ex.StatusCode.Value;
+                result.statusCode = ex.StatusCode.Value;
+                return result;
             } catch (Exception ex) {
                 Console.WriteLine(ex.Message);
-                return HttpStatusCode.InternalServerError;
+                result.statusCode = HttpStatusCode.InternalServerError;
+                return result;
             }
         }
-
     }
 }

@@ -21,30 +21,44 @@ namespace NancyApplication {
         /// Verifies that topic exists and subscription does not
         /// </summary>
         /// <returns>new created subscription if successful</returns>
-        public Subscription CreateSubscription(string accountId, string topicId) {
+        public ActionResult<Subscription> CreateSubscription(string accountId, string topicId) {
+            var result = new ActionResult<Subscription>();
+
             //Verify topic exists
             var getTopicResponse = _topicRepo.GetTopic(topicId);
             if (getTopicResponse ==  null || getTopicResponse.resposeObject == null) { 
-                return null; 
+                result.statusCode = HttpStatusCode.BadRequest;
+                return result; 
             }
             //See if subscription already exists for this account/topic
-            var existingSub = _subRepo.GetSubscriptionByTopic(topicId,accountId);
-            if (existingSub != null) { return null; }
+            var existingSubResult = _subRepo.GetSubscriptionByTopic(topicId,accountId);
+            if (existingSubResult?.resposeObject != null) { 
+                result.statusCode = HttpStatusCode.BadRequest;
+                return result; 
+            }
 
             var subscription = new Subscription(topicId,accountId);
-            var addResult = _subRepo.AddSubscription(subscription);
-            return subscription;
+            result = _subRepo.AddSubscription(subscription).Result;
+            return result;
         }
 
         /// <summary>
         /// Updating subscription to set the status as confirmed
         /// We can consider adding a dateTime UTC stamp if we want more information about when it was confirmed
         /// </summary>        
-        public HttpStatusCode ConfirmSubscription(string confirmationToken, string accountId) {
+        public ActionResult<Subscription> ConfirmSubscription(string confirmationToken, string accountId) {
+            var result = new ActionResult<Subscription>();
 
-            var subscription = _subRepo.GetSubscriptionByConfirmation(confirmationToken,accountId);
-            if (subscription == null) { return HttpStatusCode.NoContent;}
-            if (subscription.SubscriptionConfirmed) { return HttpStatusCode.NotModified;}
+            var getSubResult = _subRepo.GetSubscriptionByConfirmation(confirmationToken,accountId);
+            if (getSubResult == null || getSubResult.resposeObject == null) { 
+                result.statusCode = HttpStatusCode.NoContent;
+                return result;
+            }
+            var subscription = getSubResult.resposeObject;
+            if (subscription.SubscriptionConfirmed) { 
+                result.statusCode = HttpStatusCode.NotModified;
+                return result;
+            }
 
             subscription.SubscriptionConfirmed = true;
             var updateTaskResult = _subRepo.UpdateSubscription(subscription).Result;
@@ -54,9 +68,9 @@ namespace NancyApplication {
         /// <summary>
         /// Deletes the subscription from the repository
         /// </summary>
-        public void DeleteSubscription(string subscriptionId, string accountId)
+        public HttpStatusCode DeleteSubscription(string subscriptionId, string accountId)
         {
-            _subRepo.DeleteSubscription(subscriptionId, accountId);
+            return _subRepo.DeleteSubscription(subscriptionId, accountId).Result;
         }
     }
 }
