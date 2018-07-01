@@ -19,6 +19,9 @@ namespace NancyApplication
         {
             _accountService = accountService;
 
+            /// <summary>
+            /// Adds account to repository.  Body must contain Query string of name="AccountNameHere"&pwd="PasswordHere"
+            /// </summary>
             Post("Account/Add", args =>
             {
                 var request = Nancy.Extensions.RequestStreamExtensions.AsString(Nancy.IO.RequestStream.FromStream(this.Request.Body));
@@ -29,6 +32,9 @@ namespace NancyApplication
                 return Response.AsJson(result);
             });
 
+            /// <summary>
+            /// Updates account on registry.  Body must contain Query string of name="AccountNameHere"&pwd="PasswordHere"
+            /// </summary>
             Put("Account/{accountId}/Update", args =>
             {
                 var request = Nancy.Extensions.RequestStreamExtensions.AsString(Nancy.IO.RequestStream.FromStream(this.Request.Body));
