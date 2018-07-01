@@ -21,18 +21,26 @@ namespace NancyApplication.Tests
         [Fact]
         public void AssertAddAccountValuesAreSet()
         {
+            //Given
+
+            //When
             var result = _accountService.AddAccount(accountName,accountPassword);
             
+            //Then
             _mockRepo.Verify(m => m.AddAccount(It.IsAny<Account>()));
             Assert.Equal(accountName,result.Name);
             Assert.Equal(accountPassword,result.Password);
         }
 
         [Fact]
-        public void AssertAddAccountInvalid()
+        public void AssertAddAccountInvalidAddAccountNeverCalled()
         {
+            //Given
+
+            //When
             var result = _accountService.AddAccount("","");
 
+            //Then
             _mockRepo.Verify(m => m.AddAccount(It.IsAny<Account>()),Times.Never());
             Assert.Null(result);
         }
@@ -40,11 +48,14 @@ namespace NancyApplication.Tests
         [Fact]
         public void AssertUpdateAccount()
         {
+            //Given
             var id = Guid.NewGuid().ToString();
             var account = new Account(id,accountName,accountPassword);
 
+            //When
             var result = _accountService.UpdateAccount(id,accountName,accountPassword);
 
+            //Then
             _mockRepo.Verify(m => m.UpdateAccount(It.IsAny<Account>()));
             var expectedStr = JsonConvert.SerializeObject(account);
             var actualStr = JsonConvert.SerializeObject(result);

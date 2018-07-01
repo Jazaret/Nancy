@@ -21,17 +21,25 @@ namespace NancyApplication.Tests
         [Fact]
         public void AssertGetTopicsCallsGetTopicsRepo()
         {
+            //Given
+
+            //When
             var result = _topicService.GetAllTopics();
             
+            //Then
             _mockRepo.Verify(m => m.GetTopics());
         }
 
         [Fact]
         public void AssertGetNewsCallsGetNewsRepo()
         {
+            //Given
             const string query = "any";
+
+            ///When
             var result = _topicService.SearchForNews(query);
             
+            //Then
             _mockRepo.Verify(m => m.SearchForTopics(query));
         }        
     }
