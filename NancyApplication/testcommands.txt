@@ -2,8 +2,8 @@ curl http://localhost:5000/Topics/
 curl http://localhost:5000/Topics/Search?q=US
 
 curl -d "name=john&pwd=test" -X POST http://localhost:5000/Account/Add
-curl -d "name=jim&pwd=t" -X PUT http://localhost:5000/Account/2ac312cd-2377-4ccc-9b2e-f6e6efd3092c/Update
+curl -d "name=jim3&pwd=ttt" -X PUT http://localhost:5000/Account/ef43ac58-6b4f-4196-a0fc-c3665987395d/Update
 
-curl -X POST http://localhost:5000/Subscriptions/1/Subscribe/2
-curl -X PUT http://localhost:5000/Subscriptions/1/Confirm/abc
-curl -X DELETE http://localhost:5000/Subscriptions/1/Subscription/2
+curl -X POST http://localhost:5000/Subscriptions/ef43ac58-6b4f-4196-a0fc-c3665987395d/Subscribe/92fc2a62-f07e-4c8e-8126-ecc8e4f1a7ca
+curl -X PUT http://localhost:5000/Subscriptions/ef43ac58-6b4f-4196-a0fc-c3665987395d/Confirm/962228a5-c8bf-45dc-bd33-8b2547ea8d16
+curl -X DELETE http://localhost:5000/Subscriptions/ef43ac58-6b4f-4196-a0fc-c3665987395d/Subscription/93cea6b1-ce9e-4adc-8bc6-db1a960133ab
