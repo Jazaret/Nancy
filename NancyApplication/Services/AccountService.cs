@@ -22,10 +22,16 @@ namespace NancyApplication {
 
             if (!account.IsValid()) {
                 //return invalid response code 400
-                throw new Exception("Invalid account data");
+                return null;
             }
             
-            _accountRepo.AddAccount(account);
+            try {
+                _accountRepo.AddAccount(account);
+            } catch (Exception ex) {
+                Console.WriteLine(ex.InnerException.Message);
+                //log - handle - consider retry
+                return null;
+            }
 
             return account;
         }
@@ -39,14 +45,15 @@ namespace NancyApplication {
 
             if (!account.IsValid()) {
                 //return invalid response code 400
-                throw new Exception("Invalid account data");
+                return null;
             }
             
             try {
                 _accountRepo.UpdateAccount(account).Wait();
             } catch (Exception ex) {
                 Console.WriteLine(ex.InnerException.Message);
-                //handle 
+                //log - handle - consider retry
+                return null;
             }
             
             return account;
