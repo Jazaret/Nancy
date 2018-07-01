@@ -24,7 +24,7 @@ namespace NancyApplication
         public static IServiceCollection RegisterServices(
             this IServiceCollection services)
         {
-            services.AddSingleton<CacheService>();
+            services.AddSingleton<ICacheService, CacheService>();
             
             services.AddTransient<ITopicService, TopicService>();
             services.AddTransient<ITopicRepository, TopicRepository>();

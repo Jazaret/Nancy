@@ -12,12 +12,10 @@ namespace NancyApplication {
     {
         ITopicRepository _topicRepo;
 
-        private CacheService redisService;
-        private ConnectionMultiplexer connectionMultiplexer;
-        public TopicService(ITopicRepository topicRepository) {
+        private ICacheService _cacheService;
+        public TopicService(ITopicRepository topicRepository, ICacheService cacheService) {
             _topicRepo = topicRepository;
-            redisService = new CacheService();
-            connectionMultiplexer = redisService.Connection;
+            _cacheService = cacheService;
         }
 
         /// <summary>
@@ -38,52 +36,16 @@ namespace NancyApplication {
             
             string cacheResult = null;
             
-            cacheResult = GetFromCache(news).Result;
+            cacheResult = _cacheService.GetFromCache(news).Result;
             if (cacheResult != null) { 
                 return JsonConvert.DeserializeObject<List<Topic>>(cacheResult);
-            }           
+            }
 
             var result = _topicRepo.SearchForTopics(news);
             
-            var addCacheResult = AddToCache(news,JsonConvert.SerializeObject(result));
+            var addCacheResult = _cacheService.AddToCache(news,JsonConvert.SerializeObject(result));
 
             return result;
-        }
-
-        private async Task<string> GetFromCache(string key)
-        {
-            if (connectionMultiplexer.IsConnected)
-            {
-                var cache = connectionMultiplexer.GetDatabase();
-                return await cache.StringGetAsync(key);
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        private async Task DeleteFromCache(string subdomain)
-        {
-            if (connectionMultiplexer.IsConnected)
-            {
-                var cache = connectionMultiplexer.GetDatabase();
-                await cache.KeyDeleteAsync(subdomain).ConfigureAwait(false);
-            }
-        }
-
-        private async Task AddToCache(string key, string serializedData)
-        {
-            var GetMessagesCacheExpiryMinutes = 5;
-            if (connectionMultiplexer.IsConnected)
-            {
-                var cache = connectionMultiplexer.GetDatabase();
-
-                TimeSpan expiresIn;
-                expiresIn = new TimeSpan(0, GetMessagesCacheExpiryMinutes, 0);
-                await cache.StringSetAsync(key, serializedData, expiresIn).ConfigureAwait(false);
-
-            }
         }
     }
 }
