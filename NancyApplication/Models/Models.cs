@@ -11,7 +11,6 @@ namespace NancyApplication {
         public string Id { get; set; }
         public string Name { get; set; }
         public string Password { get; set; }
-        public IEnumerable<HyperMedia> Links { get; set; }
         public Account() {}
         public Account(string id, string name, string password)
         {
@@ -66,7 +65,6 @@ namespace NancyApplication {
         public string AccountID {get; set;}
         public string ConfirmationToken { get; set; }
         public bool SubscriptionConfirmed { get; set; }
-        public IEnumerable<HyperMedia> Links { get; set; }
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
@@ -108,11 +106,11 @@ namespace NancyApplication {
     }
 
     public class TopicList {
-        public IEnumerable<Topic> Topics;
-        public IEnumerable<HyperMedia> Links;
+        public IEnumerable<Topic> topics;
+        public IEnumerable<HyperMedia> links;
         public TopicList(IEnumerable<Topic> topics, IEnumerable<HyperMedia> links) {
-            this.Topics = topics;
-            this.Links = links;
+            this.topics = topics;
+            this.links = links;
         }
     }    
 }

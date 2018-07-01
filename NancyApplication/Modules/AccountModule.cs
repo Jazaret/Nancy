@@ -40,9 +40,8 @@ namespace NancyApplication
                         Rel = "edit" 
                     }
                 };
-                result.Links = links;
 
-                return Response.AsJson(result);
+                return Response.AsJson(new {account = result, links = links});
             });
 
             /// <summary>
@@ -54,7 +53,7 @@ namespace NancyApplication
                 NameValueCollection coll = HttpUtility.ParseQueryString(request);
                 var name = coll["name"];
                 var pwd = coll["pwd"];
-                _accountService.UpdateAccount(args.accountId, name, pwd);
+                var result = _accountService.UpdateAccount(args.accountId, name, pwd);
                 var links = new List<HyperMedia>{
                     new HyperMedia { 
                         Href = this.Request.Url, 
@@ -65,7 +64,7 @@ namespace NancyApplication
                         Rel = "add"
                     }
                 };
-                return HttpStatusCode.OK;
+                return Response.AsJson(new {account = result, links = links});
             });
         }
     }
