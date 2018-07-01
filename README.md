@@ -2,12 +2,23 @@
 
 API written in DotNetCore 2.0 and Nancy 2.0 that manages accounts, topics & subscriptions.
 
-Repository uses Geo-Redundant Session Consistancy Cosmos DB with SQL API and a Redis cache. 
-
 ## How to run application
 From the solution path run `make runapp` or use the powershell script `run`
 
+## Details
+
+* Repository uses globally Geo-Redundant Session Consistancy Cosmos DB with SQL API
+* Subscription document collection uses AccountID as partition key
+* Search topics by news is cached by Redis using StackExchange & Azure Redis Cache
+* Updates use ETag match for optimistic concurrency
+* Application uses depenency inection for services/repositories/cache
+* Unit Tests written in xunit with moq
+* Build/Test run on commits with travis-ci
+* Restful API returns with Hateoas navigation links
+
 ## Endpoints
+
+* (There are curl examples to run in [the test commands file here](NancyApplication/testcommands.txt))
 
 ### Topic Routes
 
