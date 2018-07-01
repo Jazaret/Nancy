@@ -1,13 +1,17 @@
+using System.Collections.Generic;
+
 namespace NancyApplication {
     using System;
+    using System.Collections.Generic;
     using Newtonsoft.Json;
 
     public class Account 
     {
         [JsonProperty(PropertyName = "id")]
-        public string Id {get; set;}
-        public string Name {get;set;}
-        public string Password {get;set;}
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Password { get; set; }
+        public IEnumerable<HyperMedia> Links { get; set; }
         public Account() {}
         public Account(string id, string name, string password)
         {
@@ -58,11 +62,11 @@ namespace NancyApplication {
     {
         [JsonProperty(PropertyName = "id")]
         public string Id { get; set; }
-        public string TopicID {get;set;}
-        public string AccountID {get;set;}
+        public string TopicID { get; set; }
+        public string AccountID {get; set;}
         public string ConfirmationToken { get; set; }
-
         public bool SubscriptionConfirmed { get; set; }
+        public IEnumerable<HyperMedia> Links { get; set; }
         public override string ToString()
         {
             return JsonConvert.SerializeObject(this);
@@ -94,13 +98,21 @@ namespace NancyApplication {
         }
     }
 
-    public enum ActionResult {
-        Success,
-        DoesNotExist,
-        ActionNotRequired,
-        ConcurrencyViolation,
-        Error
+    public class HyperMedia
+    {
+        [JsonProperty("rel")]
+        public string Rel { get; set; }
+
+        [JsonProperty("href")]
+        public string Href { get; set; }
     }
 
-
+    public class TopicList {
+        public IEnumerable<Topic> Topics;
+        public IEnumerable<HyperMedia> Links;
+        public TopicList(IEnumerable<Topic> topics, IEnumerable<HyperMedia> links) {
+            this.Topics = topics;
+            this.Links = links;
+        }
+    }    
 }

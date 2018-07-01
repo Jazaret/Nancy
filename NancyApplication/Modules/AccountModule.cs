@@ -29,6 +29,19 @@ namespace NancyApplication
                 var name = coll["name"];
                 var pwd = coll["pwd"];
                 Account result = _accountService.AddAccount(name,pwd);
+
+                var links = new List<HyperMedia>{
+                    new HyperMedia { 
+                        Href = this.Request.Url, 
+                        Rel = "self" 
+                    },
+                    new HyperMedia {
+                        Href = $"{this.Request.Url.SiteBase}/Account/{result.Id}/Update", 
+                        Rel = "edit" 
+                    }
+                };
+                result.Links = links;
+
                 return Response.AsJson(result);
             });
 
@@ -42,6 +55,16 @@ namespace NancyApplication
                 var name = coll["name"];
                 var pwd = coll["pwd"];
                 _accountService.UpdateAccount(args.accountId, name, pwd);
+                var links = new List<HyperMedia>{
+                    new HyperMedia { 
+                        Href = this.Request.Url, 
+                        Rel = "self" 
+                    },
+                    new HyperMedia {
+                        Href = $"{this.Request.Url.SiteBase}/Account/Add", 
+                        Rel = "add"
+                    }
+                };
                 return HttpStatusCode.OK;
             });
         }

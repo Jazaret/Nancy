@@ -20,12 +20,35 @@ namespace NancyApplication
             });
 
             Get("Topics/", args => {
-                return Response.AsJson(topicService.GetAllTopics());
+                var list = topicService.GetAllTopics();
+                var links = new List<HyperMedia>{
+                    new HyperMedia { 
+                        Href = this.Request.Url, 
+                        Rel = "self" 
+                    },
+                    new HyperMedia {
+                        Href = $"{this.Request.Url.SiteBase}/Topics/Search", 
+                        Rel = "search" 
+                    }
+                };
+                var topicList = new TopicList(list,links);
+                return Response.AsJson(topicList);
             });
             
             Get("Topics/Search", args => {
-                List<Topic> result = topicService.SearchForNews(this.Request.Query["q"]);
-                return Response.AsJson(result);
+                var list = topicService.SearchForNews(this.Request.Query["q"]);
+                var links = new List<HyperMedia>{
+                    new HyperMedia { 
+                        Href = this.Request.Url, 
+                        Rel = "self" 
+                    },
+                    new HyperMedia {
+                        Href = $"{this.Request.Url.SiteBase}/Topics/", 
+                        Rel = "index" 
+                    }
+                };
+                var topicList = new TopicList(list,links);
+                return Response.AsJson(topicList);
             });
         }
     }
