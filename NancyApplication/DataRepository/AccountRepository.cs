@@ -32,48 +32,72 @@ namespace NancyApplication
         /// <summary>
         /// Adds an account object to the repository. Note - password should be stored with salt and hash
         /// </summary>
-        public async Task<HttpStatusCode> AddAccount(Account account) {
+        public async Task<ActionResult<Account>> AddAccount(Account account) {
             return await CreateDocument(account);            
         }
 
         /// <summary>
         /// Update Account document in the repository. Note - password should be stored with salt and hash
         /// </summary>
-        public async Task<HttpStatusCode> UpdateAccount(Account account) {
+        public async Task<ActionResult<Account>> UpdateAccount(Account account) {
             return await ReplaceAccountOptimistic(account);
         }
 
         /// <summary>
         /// Creates the account document in the repository
         /// </summary>
-        private async Task<HttpStatusCode> CreateDocument(Account account)
+        private async Task<ActionResult<Account>> CreateDocument(Account account)
         {
-            var result = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, AccountsCollection), account);
-            return result.StatusCode;
+            var result = new ActionResult<Account>();
+            try {
+                var createResult = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, AccountsCollection), account);
+                result.statusCode = createResult.StatusCode;
+                var doc = createResult.Resource;
+                result.resposeObject = (Account)(dynamic)doc;
+                return result;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message + " " + ex.StatusCode);
+                result.statusCode = ex.StatusCode.Value;
+                return result;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                result.statusCode = HttpStatusCode.InternalServerError;
+                return result;
+            }
         }
 
         /// <summary>
         /// Replace account document in repository. Uses ETag match for optimistic concurrency
         /// </summary>
-        public async Task<HttpStatusCode> ReplaceAccountOptimistic(Account item) {
+        public async Task<ActionResult<Account>> ReplaceAccountOptimistic(Account item) {
+            var result = new ActionResult<Account>();
 
             var document = (from f in this.Client.CreateDocumentQuery(this.Collection.SelfLink)
                             where f.Id == item.Id
                             select f).AsEnumerable().FirstOrDefault();
 
-            if (document == null) {return HttpStatusCode.NotFound;}
+            if (document == null) {
+                result.statusCode = HttpStatusCode.NotFound;
+                return result;
+            }
 
             var editAccount = (Account)(dynamic) document;
             editAccount.ReplaceWith(item);
 
             var ac = new AccessCondition {Condition = document.ETag, Type = AccessConditionType.IfMatch};
             try {
-                var result = await this.Client.ReplaceDocumentAsync(document.SelfLink, editAccount, new RequestOptions {AccessCondition = ac});
-
-                return result.StatusCode;
+                var replaceResult = await this.Client.ReplaceDocumentAsync(document.SelfLink, editAccount, new RequestOptions {AccessCondition = ac});
+                result.statusCode = replaceResult.StatusCode;
+                result.resposeObject = (Account)(dynamic)replaceResult.Resource;
+                return result;
             } catch (DocumentClientException ex) {
                 Console.WriteLine(ex.Message);
-                return HttpStatusCode.Conflict;
+                result.statusCode = ex.StatusCode.Value; 
+                return result;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                result.statusCode = HttpStatusCode.InternalServerError;
+                return result;
             }
         }
     }

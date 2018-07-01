@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 
 namespace NancyApplication {
     /// <summary>
@@ -16,47 +17,50 @@ namespace NancyApplication {
         /// <summary>
         /// Adds an account to repository if valid
         /// </summary>
-        public Account AddAccount(string accountName, string accountPassword)
+        public ActionResult<Account> AddAccount(string accountName, string accountPassword)
         {
+            var result = new ActionResult<Account>();
             var account = new Account(accountName,accountPassword);
 
             if (!account.IsValid()) {
-                //return invalid response code 400
-                return null;
+                result.statusCode = HttpStatusCode.BadRequest;
+                return result;
             }
             
             try {
-                _accountRepo.AddAccount(account);
+                result = _accountRepo.AddAccount(account).Result;                    
             } catch (Exception ex) {
                 Console.WriteLine(ex.InnerException.Message);
                 //log - handle - consider retry
-                return null;
+                result.statusCode = HttpStatusCode.InternalServerError;
+                return result;
             }
 
-            return account;
+            return result;
         }
 
         /// <summary>
         /// Updates an account from the repository if valid.
         /// </summary>
-        public Account UpdateAccount(string accountId, string accountName, string accountPassword)
+        public ActionResult<Account> UpdateAccount(string accountId, string accountName, string accountPassword)
         {
+            var result = new ActionResult<Account>();
             var account = new Account(accountId,accountName,accountPassword);
 
             if (!account.IsValid()) {
-                //return invalid response code 400
-                return null;
+                result.statusCode = HttpStatusCode.BadRequest;
+                return result;
             }
             
             try {
-                _accountRepo.UpdateAccount(account).Wait();
+                result = _accountRepo.UpdateAccount(account).Result;
             } catch (Exception ex) {
                 Console.WriteLine(ex.InnerException.Message);
                 //log - handle - consider retry
-                return null;
+                result.statusCode = HttpStatusCode.InternalServerError;
             }
             
-            return account;
+            return result;
         }
     }
 }

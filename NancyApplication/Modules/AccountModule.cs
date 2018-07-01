@@ -28,7 +28,11 @@ namespace NancyApplication
                 NameValueCollection coll = HttpUtility.ParseQueryString(request);
                 var name = coll["name"];
                 var pwd = coll["pwd"];
-                Account result = _accountService.AddAccount(name,pwd);
+                var addResult = _accountService.AddAccount(name,pwd);
+                if (addResult.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.Created) {
+                    return addResult.statusCode;
+                }
+                var account = addResult.resposeObject;
 
                 var links = new List<HyperMedia>{
                     new HyperMedia { 
@@ -36,12 +40,12 @@ namespace NancyApplication
                         Rel = "self" 
                     },
                     new HyperMedia {
-                        Href = $"{this.Request.Url.SiteBase}/Account/{result.Id}/Update", 
+                        Href = $"{this.Request.Url.SiteBase}/Account/{account.Id}/Update", 
                         Rel = "edit" 
                     }
                 };
 
-                return Response.AsJson(new {account = result, links = links});
+                return Response.AsJson(new {account = account, links = links});
             });
 
             /// <summary>
@@ -53,7 +57,11 @@ namespace NancyApplication
                 NameValueCollection coll = HttpUtility.ParseQueryString(request);
                 var name = coll["name"];
                 var pwd = coll["pwd"];
-                var result = _accountService.UpdateAccount(args.accountId, name, pwd);
+                var updatResult = _accountService.UpdateAccount(args.accountId, name, pwd);
+                if (updatResult.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) {
+                    return updatResult.statusCode;
+                }
+                var account = updatResult.resposeObject;
                 var links = new List<HyperMedia>{
                     new HyperMedia { 
                         Href = this.Request.Url, 
@@ -64,7 +72,7 @@ namespace NancyApplication
                         Rel = "add"
                     }
                 };
-                return Response.AsJson(new {account = result, links = links});
+                return Response.AsJson(new {account = account, links = links});
             });
         }
     }
