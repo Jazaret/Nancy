@@ -47,7 +47,14 @@ namespace NancyApplication
                 var confirmationToken = args.confirmationToken;
                 var accountId = args.accountId;
                 var resultStatusCode = _subscriptionService.ConfirmSubscription(confirmationToken, accountId);
-                if (resultStatusCode != HttpStatusCode.OK) { return resultStatusCode;}
+                if ((System.Net.HttpStatusCode)resultStatusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) 
+                {
+                    //If status is Precondition failed then there is a concurrency violation.
+                    if ((System.Net.HttpStatusCode)resultStatusCode == (System.Net.HttpStatusCode)HttpStatusCode.PreconditionFailed) {
+                        return "There is an update conflit on this subscription. Please refresh the status of the subscription and try again";
+                    }
+                    return resultStatusCode;
+                }
                 var links = new List<HyperMedia>{
                     new HyperMedia { 
                         Href = this.Request.Url, 
