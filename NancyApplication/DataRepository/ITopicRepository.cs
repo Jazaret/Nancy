@@ -5,5 +5,6 @@ namespace NancyApplication {
     {
         IEnumerable<Topic> GetTopics();
         IEnumerable<Topic> SearchForTopics(string news);
+        Topic GetTopic(string id);
     }
 }

@@ -57,6 +57,12 @@ namespace NancyApplication
         {
             var result = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection), topic);
             return result.StatusCode;
-        }  
+        }
+
+        public Topic GetTopic(string id) {
+            return this.Client.CreateDocumentQuery<Topic>(
+                UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
+                .Where(t => t.ID == id).AsEnumerable().FirstOrDefault();       
+        }
     }
 }

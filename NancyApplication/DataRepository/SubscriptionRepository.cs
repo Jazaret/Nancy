@@ -54,11 +54,20 @@ namespace NancyApplication
         /// <summary>
         /// Retrieves a subscription document using the confirmation token and the accountid
         /// </summary>
-        public Subscription GetSubscription(string confirmationToken, string accountId) {
+        public Subscription GetSubscriptionByConfirmation(string confirmationToken, string accountId) {
             return this.Client.CreateDocumentQuery<Subscription>(
                 UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection))
                 .Where(c => c.ConfirmationToken == confirmationToken && c.AccountID == accountId).AsEnumerable().FirstOrDefault();                 
         }
+
+        /// <summary>
+        /// Retrieves a subscription document using the topic id and the accountid
+        /// </summary>
+        public Subscription GetSubscriptionByTopic(string topicId, string accountId) {
+            return this.Client.CreateDocumentQuery<Subscription>(
+                UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection))
+                .Where(c => c.TopicID == topicId && c.AccountID == accountId).AsEnumerable().FirstOrDefault();                 
+        }        
 
         /// <summary>
         /// Delete subscription document from collection. Requires partition key
@@ -67,10 +76,19 @@ namespace NancyApplication
         /// <returns></returns>
         public async Task<HttpStatusCode> DeleteSubscription(string subscriptionId, string accountId)
         {
-            var result = await this.Client.DeleteDocumentAsync(
-                UriFactory.CreateDocumentUri(TopicsDB, SubscriptionCollection, subscriptionId)
-                ,new RequestOptions { PartitionKey = new PartitionKey(accountId) });
-            return result.StatusCode;
+            try {
+                var result = await this.Client.DeleteDocumentAsync(
+                    UriFactory.CreateDocumentUri(TopicsDB, SubscriptionCollection, subscriptionId)
+                    ,new RequestOptions { PartitionKey = new PartitionKey(accountId) });
+                    return result.StatusCode;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message);
+                return ex.StatusCode.Value;
+            } 
+            catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                return HttpStatusCode.InternalServerError;
+            }
         }
 
         /// <summary>
@@ -78,8 +96,17 @@ namespace NancyApplication
         /// </summary>
         private async Task<HttpStatusCode> CreateSubscriptionDocument(Subscription subscription)
         {
-            var result = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection), subscription);
-            return result.StatusCode;
+            try {
+                var result = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection), subscription);
+                return result.StatusCode;
+            } catch (DocumentClientException ex) {
+                Console.WriteLine(ex.Message);
+                return ex.StatusCode.Value;
+            } 
+            catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                return HttpStatusCode.InternalServerError;
+            }
         }     
 
         /// <summary>
@@ -104,6 +131,9 @@ namespace NancyApplication
             } catch (DocumentClientException ex) {
                 Console.WriteLine(ex.Message + " " + ex.StatusCode);
                 return ex.StatusCode.Value;
+            } catch (Exception ex) {
+                Console.WriteLine(ex.Message);
+                return HttpStatusCode.InternalServerError;
             }
         }
 

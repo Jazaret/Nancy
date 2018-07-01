@@ -9,15 +9,29 @@ namespace NancyApplication {
     public class SubscriptionService : ISubscriptionService
     {
         ISubscriptionRepository _subRepo;
+        ITopicRepository _topicRepo;
 
-        public SubscriptionService(ISubscriptionRepository subscriptionRepository) {
+        public SubscriptionService(ISubscriptionRepository subscriptionRepository, ITopicRepository topicRepository) {
             _subRepo = subscriptionRepository;
+            _topicRepo = topicRepository;
         }
         
-        public string CreateSubscription(string accountId, string topicId) {
+        /// <summary>
+        /// Creates a new subscription in the repository using the accountId and topicId.
+        /// Verifies that topic exists and subscription does not
+        /// </summary>
+        /// <returns>new created subscription if successful</returns>
+        public Subscription CreateSubscription(string accountId, string topicId) {
+            //Verify topic exists
+            var topic = _topicRepo.GetTopic(topicId);
+            if (topic == null) { return null; }
+            //See if subscription already exists for this account/topic
+            var existingSub = _subRepo.GetSubscriptionByTopic(topicId,accountId);
+            if (existingSub != null) { return null; }
+
             var subscription = new Subscription(topicId,accountId);
-            _subRepo.AddSubscription(subscription);
-            return subscription.ConfirmationToken;
+            var addResult = _subRepo.AddSubscription(subscription);
+            return subscription;
         }
 
         /// <summary>
@@ -26,7 +40,7 @@ namespace NancyApplication {
         /// </summary>        
         public HttpStatusCode ConfirmSubscription(string confirmationToken, string accountId) {
 
-            var subscription = _subRepo.GetSubscription(confirmationToken,accountId);
+            var subscription = _subRepo.GetSubscriptionByConfirmation(confirmationToken,accountId);
             if (subscription == null) { return HttpStatusCode.NoContent;}
             if (subscription.SubscriptionConfirmed) { return HttpStatusCode.NotModified;}
 

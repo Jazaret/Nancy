@@ -20,18 +20,25 @@ namespace NancyApplication
             {
                 var accountId = args.accountId;
                 var topicId = args.topicId;
-                string result = _subscriptionService.CreateSubscription(accountId, topicId);   
+                var result = _subscriptionService.CreateSubscription(accountId, topicId); 
+                if (result == null) { return HttpStatusCode.InternalServerError; }
+                var confirmationToken = result.ConfirmationToken;  
+                var subId = result.Id;
                 var links = new List<HyperMedia>{
                     new HyperMedia { 
                         Href = this.Request.Url, 
                         Rel = "self" 
                     },
                     new HyperMedia {
-                        Href = $"{this.Request.Url.SiteBase}/Subscriptions/{accountId}/Confirm/{result}", 
+                        Href = $"{this.Request.Url.SiteBase}/Subscriptions/{accountId}/Confirm/{confirmationToken}", 
                         Rel = "confirm"
+                    },
+                    new HyperMedia {
+                        Href = $"{this.Request.Url.SiteBase}/Subscriptions/{accountId}/Subscription/{subId}", 
+                        Rel = "delete"
                     }
                 };             
-                return Response.AsJson(links);
+                return Response.AsJson(new {ConfirmationToken = confirmationToken, links = links});
             });
 
             //Confirm topic subscription

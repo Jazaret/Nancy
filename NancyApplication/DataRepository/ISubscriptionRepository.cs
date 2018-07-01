@@ -7,7 +7,8 @@ namespace NancyApplication {
     {
         Task<HttpStatusCode> AddSubscription(Subscription Subscription);
         Task<HttpStatusCode> DeleteSubscription(string subscriptionId, string accountId);
-        Subscription GetSubscription(string confirmationToken, string accountId);
+        Subscription GetSubscriptionByConfirmation(string confirmationToken, string accountId);
+        Subscription GetSubscriptionByTopic(string topicId, string accountId);
         Task<HttpStatusCode> UpdateSubscription(Subscription subcription);
     }
 }
