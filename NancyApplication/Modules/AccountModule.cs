@@ -5,6 +5,7 @@ namespace NancyApplication
     using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
+    using System.Threading.Tasks;
     using System.Web;
 
 
@@ -28,7 +29,8 @@ namespace NancyApplication
                 NameValueCollection coll = HttpUtility.ParseQueryString(request);
                 var name = coll["name"];
                 var pwd = coll["pwd"];
-                var addResult = _accountService.AddAccount(name,pwd);
+                Task<ActionResult<Account>> addTask = _accountService.UpdateAccount(args.accountId, name, pwd);
+                ActionResult<Account> addResult = addTask.Result;
                 if (addResult.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.Created) {
                     return addResult.statusCode;
                 }
@@ -57,7 +59,8 @@ namespace NancyApplication
                 NameValueCollection coll = HttpUtility.ParseQueryString(request);
                 var name = coll["name"];
                 var pwd = coll["pwd"];
-                var updatResult = _accountService.UpdateAccount(args.accountId, name, pwd);
+                Task<ActionResult<Account>> updateTask = _accountService.UpdateAccount(args.accountId, name, pwd);
+                ActionResult<Account> updatResult = updateTask.Result;
                 if (updatResult.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) {
                     return updatResult.statusCode;
                 }

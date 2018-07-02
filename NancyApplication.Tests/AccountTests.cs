@@ -30,7 +30,7 @@ namespace NancyApplication.Tests
             _mockRepo.Setup(m => m.AddAccount(It.IsAny<Account>())).Returns(Task.FromResult(ar));
 
             //When
-            var result = _accountService.AddAccount(accountName,accountPassword);
+            var result = _accountService.AddAccount(accountName,accountPassword).Result;
             
             //Then
             _mockRepo.Verify(m => m.AddAccount(It.IsAny<Account>()));
@@ -45,7 +45,7 @@ namespace NancyApplication.Tests
             //Given
 
             //When
-            var result = _accountService.AddAccount("","");
+            var result = _accountService.AddAccount("","").Result;
 
             //Then
             _mockRepo.Verify(m => m.AddAccount(It.IsAny<Account>()),Times.Never());
@@ -62,7 +62,7 @@ namespace NancyApplication.Tests
             _mockRepo.Setup(m => m.UpdateAccount(It.IsAny<Account>())).Returns(Task.FromResult(ar));
 
             //When
-            var result = _accountService.UpdateAccount(id,accountName,accountPassword);
+            var result = _accountService.UpdateAccount(id,accountName,accountPassword).Result;
 
             //Then
             _mockRepo.Verify(m => m.UpdateAccount(It.IsAny<Account>()));

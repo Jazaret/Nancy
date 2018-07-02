@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace NancyApplication {
     /// <summary>
@@ -17,7 +18,7 @@ namespace NancyApplication {
         /// <summary>
         /// Adds an account to repository if valid
         /// </summary>
-        public ActionResult<Account> AddAccount(string accountName, string accountPassword)
+        public async Task<ActionResult<Account>> AddAccount(string accountName, string accountPassword)
         {
             var result = new ActionResult<Account>();
             var account = new Account(accountName,accountPassword);
@@ -28,7 +29,7 @@ namespace NancyApplication {
             }
             
             try {
-                result = _accountRepo.AddAccount(account).Result;                    
+                result = await _accountRepo.AddAccount(account);                    
             } catch (Exception ex) {
                 Console.WriteLine(ex.InnerException.Message);
                 //log - handle - consider retry
@@ -42,7 +43,7 @@ namespace NancyApplication {
         /// <summary>
         /// Updates an account from the repository if valid.
         /// </summary>
-        public ActionResult<Account> UpdateAccount(string accountId, string accountName, string accountPassword)
+        public async Task<ActionResult<Account>> UpdateAccount(string accountId, string accountName, string accountPassword)
         {
             var result = new ActionResult<Account>();
             var account = new Account(accountId,accountName,accountPassword);
