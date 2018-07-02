@@ -54,7 +54,7 @@ namespace NancyApplication {
             }
             
             try {
-                result = _accountRepo.UpdateAccount(account).Result;
+                result = await _accountRepo.UpdateAccount(account);
             } catch (Exception ex) {
                 Console.WriteLine(ex.InnerException.Message);
                 //log - handle - consider retry
