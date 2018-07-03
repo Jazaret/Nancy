@@ -44,6 +44,7 @@ namespace NancyApplication
                 var createResult = await this.Client.CreateDocumentAsync(UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection), subscription);
                 result.resposeObject = (Subscription)(dynamic)createResult.Resource;
                 result.statusCode = HttpStatusCode.Created;
+                result.sessionToken = createResult.SessionToken;
                 return result;
             } catch (DocumentClientException ex) {
                 Console.WriteLine(ex.Message + " " + ex.StatusCode);
@@ -61,18 +62,18 @@ namespace NancyApplication
         /// </summary>
         /// <param name="subscription"></param>
         /// <returns></returns>
-        public async Task<ActionResult<Subscription>> UpdateSubscription(Subscription subscription) {
-            return await ReplaceSubscriptionOptimistic(subscription);
+        public async Task<ActionResult<Subscription>> UpdateSubscription(Subscription subscription, string sessionToken) {
+            return await ReplaceSubscriptionOptimistic(subscription, sessionToken);
         }
 
         /// <summary>
         /// Retrieves a subscription document using the confirmation token and the accountid
         /// </summary>
-        public ActionResult<Subscription> GetSubscriptionByConfirmation(string confirmationToken, string accountId) {
+        public ActionResult<Subscription> GetSubscriptionByConfirmation(string confirmationToken, string accountId, string sessionToken) {
             var result = new ActionResult<Subscription>();
             try {
                 var createResult = this.Client.CreateDocumentQuery<Subscription>(
-                    UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection))
+                    UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection), new FeedOptions{ PartitionKey = new PartitionKey(accountId), SessionToken = sessionToken})
                     .Where(c => c.ConfirmationToken == confirmationToken && c.AccountID == accountId).AsEnumerable().FirstOrDefault();  
                 result.statusCode = HttpStatusCode.Created;
                 result.resposeObject = createResult;               
@@ -91,11 +92,11 @@ namespace NancyApplication
         /// <summary>
         /// Retrieves a subscription document using the topic id and the accountid
         /// </summary>
-        public ActionResult<Subscription> GetSubscriptionByTopic(string topicId, string accountId) {
+        public ActionResult<Subscription> GetSubscriptionByTopic(string topicId, string accountId, string sessionToken) {
             var result = new ActionResult<Subscription>();
             try {
                 var queryResult = this.Client.CreateDocumentQuery<Subscription>(
-                UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection))
+                UriFactory.CreateDocumentCollectionUri(TopicsDB, SubscriptionCollection), new FeedOptions{ PartitionKey = new PartitionKey(accountId), SessionToken = sessionToken})
                 .Where(c => c.TopicID == topicId && c.AccountID == accountId).AsEnumerable().FirstOrDefault();  
                 result.statusCode = queryResult == null ? HttpStatusCode.NotFound : HttpStatusCode.OK;
                 result.resposeObject = queryResult;
@@ -136,12 +137,12 @@ namespace NancyApplication
         /// <summary>
         /// Replace account document in repository. Uses ETag match for optimistic concurrency
         /// </summary>
-        public async Task<ActionResult<Subscription>> ReplaceSubscriptionOptimistic(Subscription item) {
+        public async Task<ActionResult<Subscription>> ReplaceSubscriptionOptimistic(Subscription item, string sessionToken) {
             
             var result = new ActionResult<Subscription>();
             try {            
                 var document = (from f in this.Client.CreateDocumentQuery(
-                                this.Collection.SelfLink, new FeedOptions{ PartitionKey = new PartitionKey(item.AccountID)})
+                                this.Collection.SelfLink, new FeedOptions{ PartitionKey = new PartitionKey(item.AccountID), SessionToken = sessionToken})
                                 where f.Id == item.Id
                                 select f).AsEnumerable().FirstOrDefault();
 
@@ -158,6 +159,7 @@ namespace NancyApplication
                 var replaceResult = await this.Client.ReplaceDocumentAsync(document.SelfLink, editSubscription, new RequestOptions {AccessCondition = ac});
                 result.resposeObject = (Subscription)(dynamic)replaceResult.Resource;
                 result.statusCode = replaceResult.StatusCode;
+                result.sessionToken = replaceResult.SessionToken;
                 return result;
             } catch (DocumentClientException ex) {
                 Console.WriteLine(ex.Message + " " + ex.StatusCode);

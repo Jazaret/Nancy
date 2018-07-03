@@ -5,5 +5,5 @@ curl -d "name=john&pwd=test" -X POST http://localhost:5000/Account/Add
 curl -d "name=jim3&pwd=ttt" -X PUT http://localhost:5000/Account/ef43ac58-6b4f-4196-a0fc-c3665987395d/Update
 
 curl -X POST http://localhost:5000/Subscriptions/ef43ac58-6b4f-4196-a0fc-c3665987395d/Subscribe/92fc2a62-f07e-4c8e-8126-ecc8e4f1a7ca
-curl -X PUT http://localhost:5000/Subscriptions/ef43ac58-6b4f-4196-a0fc-c3665987395d/Confirm/962228a5-c8bf-45dc-bd33-8b2547ea8d16
+curl -X PUT http://localhost:5000/Subscriptions/ef43ac58-6b4f-4196-a0fc-c3665987395d/Confirm/7eba5b56-7408-4565-9271-0916a23d68ca --cookie "_sessionToken=3:52"
 curl -X DELETE http://localhost:5000/Subscriptions/ef43ac58-6b4f-4196-a0fc-c3665987395d/Subscription/93cea6b1-ce9e-4adc-8bc6-db1a960133ab

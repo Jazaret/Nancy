@@ -37,11 +37,11 @@ namespace NancyApplication.Tests
             _mockSubRepo.Setup(m => m.AddSubscription(It.IsAny<Subscription>())).Returns(Task.FromResult(ar2));
 
             //When
-            var result = _subscriptionService.CreateSubscription(subAccountId,subTopicId);
+            var result = _subscriptionService.CreateSubscription(subAccountId,subTopicId, string.Empty);
             
             //Then
             _mockTopicRepo.Verify(m => m.GetTopic(subTopicId));
-            _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(subTopicId,subAccountId));
+            _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(subTopicId,subAccountId,string.Empty));
             _mockSubRepo.Verify(m => m.AddSubscription(It.IsAny<Subscription>()));
             Assert.Equal(subTopicId,result.resposeObject.TopicID);
             Assert.Equal(subAccountId,result.resposeObject.AccountID);
@@ -56,14 +56,14 @@ namespace NancyApplication.Tests
             _mockTopicRepo.Setup(m => m.GetTopic(subTopicId)).Returns(ar);
 
             var ar2 = new ActionResult<Subscription>() {resposeObject= subscription, statusCode = HttpStatusCode.OK};
-            _mockSubRepo.Setup(m => m.GetSubscriptionByTopic(subTopicId,subAccountId)).Returns(ar2);
+            _mockSubRepo.Setup(m => m.GetSubscriptionByTopic(subTopicId,subAccountId,string.Empty)).Returns(ar2);
 
             //When
-            var result = _subscriptionService.CreateSubscription(subAccountId,subTopicId);
+            var result = _subscriptionService.CreateSubscription(subAccountId,subTopicId,string.Empty);
             
             //Then
             _mockTopicRepo.Verify(m => m.GetTopic(subTopicId));
-            _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(subTopicId,subAccountId));
+            _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(subTopicId,subAccountId,string.Empty));
             _mockSubRepo.Verify(m => m.AddSubscription(It.IsAny<Subscription>()),Times.Never());
             Assert.Null(result.resposeObject);
         }        
@@ -77,11 +77,11 @@ namespace NancyApplication.Tests
             //Given
 
             //When
-            var result = _subscriptionService.CreateSubscription(subAccountId,subTopicId);
+            var result = _subscriptionService.CreateSubscription(subAccountId,subTopicId,string.Empty);
             
             //Then
             _mockTopicRepo.Verify(m => m.GetTopic(subTopicId));
-            _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(It.IsAny<string>(),It.IsAny<string>()),Times.Never());
+            _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(It.IsAny<string>(),It.IsAny<string>(),It.IsAny<string>()),Times.Never());
             _mockSubRepo.Verify(m => m.AddSubscription(It.IsAny<Subscription>()),Times.Never());
             Assert.Null(result.resposeObject);
         }        
@@ -110,15 +110,15 @@ namespace NancyApplication.Tests
                     SubscriptionConfirmed = false
             };
             var ar = new ActionResult<Subscription>{resposeObject = subscription, statusCode = HttpStatusCode.OK};
-            _mockSubRepo.Setup(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId))
+            _mockSubRepo.Setup(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId,string.Empty))
                 .Returns(ar);
 
             //When
-            var result = _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId);
+            var result = _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId, string.Empty);
 
             //Then
-            _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId));
-            _mockSubRepo.Verify(m => m.UpdateSubscription(It.IsAny<Subscription>()));
+            _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId,string.Empty));
+            _mockSubRepo.Verify(m => m.UpdateSubscription(It.IsAny<Subscription>(),string.Empty));
         }     
 
         [Fact]
@@ -127,11 +127,11 @@ namespace NancyApplication.Tests
             //Given
 
             //When
-            var result = _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId);
+            var result = _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId, string.Empty);
 
             //Then
-            _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId));
-            _mockSubRepo.Verify(m => m.UpdateSubscription(It.IsAny<Subscription>()),Times.Never);
+            _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId,string.Empty));
+            _mockSubRepo.Verify(m => m.UpdateSubscription(It.IsAny<Subscription>(), It.IsAny<string>()),Times.Never);
             Assert.Equal(HttpStatusCode.NoContent,result.statusCode);
         }                          
 
@@ -147,15 +147,15 @@ namespace NancyApplication.Tests
                     SubscriptionConfirmed = true
             };
             var ar = new ActionResult<Subscription>{resposeObject = subscription, statusCode = HttpStatusCode.OK};
-            _mockSubRepo.Setup(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId))
+            _mockSubRepo.Setup(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId,string.Empty))
                 .Returns(ar);
 
             //When
-            var result = _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId);
+            var result = _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId, string.Empty);
 
             //Then
-            _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId));
-            _mockSubRepo.Verify(m => m.UpdateSubscription(It.IsAny<Subscription>()),Times.Never);
+            _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId,string.Empty));
+            _mockSubRepo.Verify(m => m.UpdateSubscription(It.IsAny<Subscription>(), It.IsAny<string>()),Times.Never);
             Assert.Equal(HttpStatusCode.NotModified,result.statusCode);
         }     
     }

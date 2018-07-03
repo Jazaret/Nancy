@@ -3,12 +3,14 @@ namespace NancyApplication
     using Nancy;
     using System;
     using System.Collections.Generic;
+    using System.Linq;
 
     /// <summary>
     /// Nancy module that handles the Subscription endpoints
     /// </summary>
     public class TopicSubscriptionsModule : NancyModule
-    {
+    {       
+        private const string _sessionTokenCookieName = "_sessionToken";
         private ISubscriptionService _subscriptionService;
 
         public TopicSubscriptionsModule(ISubscriptionService subcriptionService)
@@ -19,8 +21,10 @@ namespace NancyApplication
             Post("Subscriptions/{accountId}/Subscribe/{topicId}", args =>
             {
                 var accountId = args.accountId;
-                var topicId = args.topicId;
-                ActionResult<Subscription> result = _subscriptionService.CreateSubscription(accountId, topicId); 
+                var topicId = args.topicId;                
+                var sessionCookie = Request.Headers.Cookie.FirstOrDefault(c => c.Name == _sessionTokenCookieName);
+                var sessionToken = sessionCookie == null ? null : sessionCookie.Value;
+                ActionResult<Subscription> result = _subscriptionService.CreateSubscription(accountId, topicId, sessionToken); 
                 if (result.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.Created){
                     return result.statusCode;
                 }
@@ -41,7 +45,11 @@ namespace NancyApplication
                         Rel = "delete"
                     }
                 };             
-                return Response.AsJson(new {ConfirmationToken = confirmationToken, links = links});
+                var response = Response.AsJson(new {ConfirmationToken = confirmationToken, links = links});
+                if (!string.IsNullOrWhiteSpace(result.sessionToken)) {
+                    response.WithCookie(_sessionTokenCookieName,result.sessionToken);
+                }
+                return response;
             });
 
             //Confirm topic subscription
@@ -49,7 +57,9 @@ namespace NancyApplication
             {
                 var confirmationToken = args.confirmationToken;
                 var accountId = args.accountId;
-                ActionResult<Subscription> result = _subscriptionService.ConfirmSubscription(confirmationToken, accountId);
+                var sessionCookie = Request.Headers.Cookie.FirstOrDefault(c => c.Name == _sessionTokenCookieName);
+                var sessionToken = sessionCookie == null ? null : sessionCookie.Value;
+                ActionResult<Subscription> result = _subscriptionService.ConfirmSubscription(confirmationToken, accountId, sessionToken);
                 if (result.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) 
                 {
                     //If status is Precondition failed then there is a concurrency violation.
@@ -70,6 +80,10 @@ namespace NancyApplication
                         Rel = "delete"
                     }
                 };             
+                var response = Response.AsJson(links);
+                if (!string.IsNullOrWhiteSpace(result.sessionToken)) {
+                    response.WithCookie(_sessionTokenCookieName,result.sessionToken);
+                }                
                 return Response.AsJson(links);        
             });
 

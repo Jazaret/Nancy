@@ -118,6 +118,7 @@ namespace NancyApplication {
     public class ActionResult<T> {
         public T resposeObject;
         public HttpStatusCode statusCode { get; set; }
+        public string sessionToken { get; set; }
         public ActionResult() {}
     }
 
