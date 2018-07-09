@@ -18,7 +18,7 @@ namespace NancyApplication
             _subscriptionService = subcriptionService;
 
             //Subscribe to topic
-            Post("Subscriptions/{accountId}/Subscribe/{topicId}", async args =>
+            Post("Subscriptions/{accountId}/Subscribe/{topicId}", async (args, ct) =>
             {
                 var accountId = args.accountId;
                 var topicId = args.topicId;                
@@ -53,7 +53,7 @@ namespace NancyApplication
             });
 
             //Confirm topic subscription
-            Put("Subscriptions/{accountId}/Confirm/{confirmationToken}", async args =>
+            Put("Subscriptions/{accountId}/Confirm/{confirmationToken}", async (args, ct) =>
             {
                 var confirmationToken = args.confirmationToken;
                 var accountId = args.accountId;

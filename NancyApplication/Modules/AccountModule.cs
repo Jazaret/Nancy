@@ -23,7 +23,7 @@ namespace NancyApplication
             /// <summary>
             /// Adds account to repository.  Body must contain Query string of name="AccountNameHere"&pwd="PasswordHere"
             /// </summary>
-            Post("Account/Add", async args =>
+            Post("Account/Add", async (args, ct) =>
             {
                 var request = Nancy.Extensions.RequestStreamExtensions.AsString(Nancy.IO.RequestStream.FromStream(this.Request.Body));
                 NameValueCollection coll = HttpUtility.ParseQueryString(request);
@@ -53,7 +53,7 @@ namespace NancyApplication
             /// <summary>
             /// Updates account on registry.  Body must contain Query string of name="AccountNameHere"&pwd="PasswordHere"
             /// </summary>
-            Put("Account/{accountId}/Update", async args =>
+            Put("Account/{accountId}/Update", async (args, ct) =>
             {
                 var request = Nancy.Extensions.RequestStreamExtensions.AsString(Nancy.IO.RequestStream.FromStream(this.Request.Body));
                 NameValueCollection coll = HttpUtility.ParseQueryString(request);

@@ -22,7 +22,7 @@ namespace NancyApplication
             /// <summary>
             /// Get all topics in repository
             /// </summary>
-            Get("Topics/", async args => {
+            Get("Topics/", async (args, ct) => {
                 var getResponse = await topicService.GetAllTopics();
                 if (getResponse.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) {
                     return getResponse.statusCode;
@@ -44,7 +44,7 @@ namespace NancyApplication
             /// <summary>
             /// Search for topics in repository. 
             /// </summary>
-            Get("Topics/Search", async args => {
+            Get("Topics/Search", async (args, ct) => {
                 var getResponse = await topicService.SearchForNews(this.Request.Query["q"]);
                 if (getResponse.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) {
                     return getResponse.statusCode;
