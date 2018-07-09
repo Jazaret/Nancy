@@ -36,6 +36,7 @@ namespace NancyApplication
         ActionResult<IEnumerable<Topic>> ITopicRepository.GetTopics()
         {   
             var result = new ActionResult<IEnumerable<Topic>>();
+
             try {
                 var queryResult = this.Client.CreateDocumentQuery<Topic>(UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection)).ToList();
                 result.resposeObject = queryResult;
@@ -77,6 +78,27 @@ namespace NancyApplication
                 return result;
             }
         }    
+
+        private async Task SeedTopics() {
+            
+            var topic1 = new Topic {
+                Name = "Topic one name",
+                ID = Guid.NewGuid().ToString()
+            };
+            var topic2 = new Topic {
+                Name = "Topic two name",
+                ID = Guid.NewGuid().ToString()
+            };
+
+            var topic3 = new Topic {
+                Name = "Topic three name",
+                ID = Guid.NewGuid().ToString()
+            };
+
+            await CreateDocument(topic1);
+            await CreateDocument(topic2);
+            await CreateDocument(topic3);
+        }
 
         private async Task<HttpStatusCode> CreateDocument(Topic topic)
         {
