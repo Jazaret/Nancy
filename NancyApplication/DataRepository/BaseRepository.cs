@@ -15,7 +15,7 @@ namespace NancyApplication
     public class BaseRepository {
         protected const string TopicsDB = "TopicsDB";
         protected const string EndpointUrl = "https://topics.documents.azure.com:443/";
-        protected const string PrimaryKey = "LmX3kOe6k6DADHOQbehETuHo09Evi3AVzEN2JhZL2Ax9XONxmmUgALHMOhfTbR2rPw5Xv6byrC5xsvAhRUSVXA==";
+        protected const string PrimaryKey = "bM68xhwHGQ4ACgoGE2g95nb8Xzuo7kGhFjFelYvu6vcWWVGmApECzUWbLMb3mz6Ay8ogAH6GrqEpANQ8qtZigw==";
 
         protected DocumentClient Client;    
         protected DocumentCollection Collection;
