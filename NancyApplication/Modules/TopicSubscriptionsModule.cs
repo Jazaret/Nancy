@@ -18,13 +18,13 @@ namespace NancyApplication
             _subscriptionService = subcriptionService;
 
             //Subscribe to topic
-            Post("Subscriptions/{accountId}/Subscribe/{topicId}", args =>
+            Post("Subscriptions/{accountId}/Subscribe/{topicId}", async args =>
             {
                 var accountId = args.accountId;
                 var topicId = args.topicId;                
                 var sessionCookie = Request.Headers.Cookie.FirstOrDefault(c => c.Name == _sessionTokenCookieName);
                 var sessionToken = sessionCookie == null ? null : sessionCookie.Value;
-                ActionResult<Subscription> result = _subscriptionService.CreateSubscription(accountId, topicId, sessionToken); 
+                ActionResult<Subscription> result = await _subscriptionService.CreateSubscription(accountId, topicId, sessionToken); 
                 if (result.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.Created){
                     return result.statusCode;
                 }
@@ -47,19 +47,19 @@ namespace NancyApplication
                 };             
                 var response = Response.AsJson(new {ConfirmationToken = confirmationToken, links = links});
                 if (!string.IsNullOrWhiteSpace(result.sessionToken)) {
-                    response.WithCookie(_sessionTokenCookieName,result.sessionToken);
+                    await response.WithCookie(_sessionTokenCookieName,result.sessionToken);
                 }
                 return response;
             });
 
             //Confirm topic subscription
-            Put("Subscriptions/{accountId}/Confirm/{confirmationToken}", args =>
+            Put("Subscriptions/{accountId}/Confirm/{confirmationToken}", async args =>
             {
                 var confirmationToken = args.confirmationToken;
                 var accountId = args.accountId;
                 var sessionCookie = Request.Headers.Cookie.FirstOrDefault(c => c.Name == _sessionTokenCookieName);
                 var sessionToken = sessionCookie == null ? null : sessionCookie.Value;
-                ActionResult<Subscription> result = _subscriptionService.ConfirmSubscription(confirmationToken, accountId, sessionToken);
+                ActionResult<Subscription> result = await _subscriptionService.ConfirmSubscription(confirmationToken, accountId, sessionToken);
                 if (result.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) 
                 {
                     //If status is Precondition failed then there is a concurrency violation.
@@ -82,16 +82,16 @@ namespace NancyApplication
                 };             
                 var response = Response.AsJson(links);
                 if (!string.IsNullOrWhiteSpace(result.sessionToken)) {
-                    response.WithCookie(_sessionTokenCookieName,result.sessionToken);
+                    await response.WithCookie(_sessionTokenCookieName,result.sessionToken);
                 }                
                 return Response.AsJson(links);        
             });
 
             //Delete topic
-            Delete("Subscriptions/{accountId}/Subscription/{subscriptionId}", args => {
+            Delete("Subscriptions/{accountId}/Subscription/{subscriptionId}", async args => {
                 var accountId = args.accountId;
                 var subId = args.subscriptionId;
-                var result = _subscriptionService.DeleteSubscription(subId, accountId);
+                var result = await _subscriptionService.DeleteSubscription(subId, accountId);
                 return result;
             });
         }

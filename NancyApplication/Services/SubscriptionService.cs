@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace NancyApplication {
     /// <summary>
@@ -21,7 +22,7 @@ namespace NancyApplication {
         /// Verifies that topic exists and subscription does not
         /// </summary>
         /// <returns>new created subscription if successful</returns>
-        public ActionResult<Subscription> CreateSubscription(string accountId, string topicId, string sessionToken) {
+        public async Task<ActionResult<Subscription>> CreateSubscription(string accountId, string topicId, string sessionToken) {
             var result = new ActionResult<Subscription>();
 
             //Verify topic exists
@@ -38,7 +39,7 @@ namespace NancyApplication {
             }
 
             var subscription = new Subscription(topicId,accountId);
-            result = _subRepo.AddSubscription(subscription).Result;
+            result = await _subRepo.AddSubscription(subscription);
             return result;
         }
 
@@ -46,7 +47,7 @@ namespace NancyApplication {
         /// Updating subscription to set the status as confirmed
         /// We can consider adding a dateTime UTC stamp if we want more information about when it was confirmed
         /// </summary>        
-        public ActionResult<Subscription> ConfirmSubscription(string confirmationToken, string accountId, string sessionToken) {
+        public async Task<ActionResult<Subscription>> ConfirmSubscription(string confirmationToken, string accountId, string sessionToken) {
             var result = new ActionResult<Subscription>();
 
             var getSubResult = _subRepo.GetSubscriptionByConfirmation(confirmationToken,accountId, sessionToken);
@@ -61,16 +62,16 @@ namespace NancyApplication {
             }
 
             subscription.SubscriptionConfirmed = true;
-            var updateTaskResult = _subRepo.UpdateSubscription(subscription,sessionToken).Result;
+            var updateTaskResult = await _subRepo.UpdateSubscription(subscription,sessionToken);
             return updateTaskResult;
         }
 
         /// <summary>
         /// Deletes the subscription from the repository
         /// </summary>
-        public HttpStatusCode DeleteSubscription(string subscriptionId, string accountId)
+        public async Task<HttpStatusCode> DeleteSubscription(string subscriptionId, string accountId)
         {
-            return _subRepo.DeleteSubscription(subscriptionId, accountId).Result;
+            return await _subRepo.DeleteSubscription(subscriptionId, accountId);
         }
     }
 }

@@ -43,8 +43,8 @@ namespace NancyApplication.Tests
             _mockTopicRepo.Verify(m => m.GetTopic(subTopicId));
             _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(subTopicId,subAccountId,string.Empty));
             _mockSubRepo.Verify(m => m.AddSubscription(It.IsAny<Subscription>()));
-            Assert.Equal(subTopicId,result.resposeObject.TopicID);
-            Assert.Equal(subAccountId,result.resposeObject.AccountID);
+            Assert.Equal(subTopicId,result.Result.resposeObject.TopicID);
+            Assert.Equal(subAccountId,result.Result.resposeObject.AccountID);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace NancyApplication.Tests
             _mockTopicRepo.Verify(m => m.GetTopic(subTopicId));
             _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(subTopicId,subAccountId,string.Empty));
             _mockSubRepo.Verify(m => m.AddSubscription(It.IsAny<Subscription>()),Times.Never());
-            Assert.Null(result.resposeObject);
+            Assert.Null(result.Result.resposeObject);
         }        
 
         /// <summary>
@@ -83,16 +83,16 @@ namespace NancyApplication.Tests
             _mockTopicRepo.Verify(m => m.GetTopic(subTopicId));
             _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(It.IsAny<string>(),It.IsAny<string>(),It.IsAny<string>()),Times.Never());
             _mockSubRepo.Verify(m => m.AddSubscription(It.IsAny<Subscription>()),Times.Never());
-            Assert.Null(result.resposeObject);
+            Assert.Null(result.Result.resposeObject);
         }        
 
         [Fact]
-        public void AssertDeleteSubscriptionCallsRepoToDelete()
+        public async void AssertDeleteSubscriptionCallsRepoToDelete()
         {
             //Given
 
             //When
-            _subscriptionService.DeleteSubscription(subId,subAccountId);
+            await _subscriptionService.DeleteSubscription(subId,subAccountId);
 
             //Then
             _mockSubRepo.Verify(m => m.DeleteSubscription(subId,subAccountId));
@@ -132,7 +132,7 @@ namespace NancyApplication.Tests
             //Then
             _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId,string.Empty));
             _mockSubRepo.Verify(m => m.UpdateSubscription(It.IsAny<Subscription>(), It.IsAny<string>()),Times.Never);
-            Assert.Equal(HttpStatusCode.NoContent,result.statusCode);
+            Assert.Equal(HttpStatusCode.NoContent,result.Result.statusCode);
         }                          
 
         [Fact]
@@ -156,7 +156,7 @@ namespace NancyApplication.Tests
             //Then
             _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId,string.Empty));
             _mockSubRepo.Verify(m => m.UpdateSubscription(It.IsAny<Subscription>(), It.IsAny<string>()),Times.Never);
-            Assert.Equal(HttpStatusCode.NotModified,result.statusCode);
+            Assert.Equal(HttpStatusCode.NotModified,result.Result.statusCode);
         }     
     }
 }
