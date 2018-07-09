@@ -23,14 +23,14 @@ namespace NancyApplication
             /// <summary>
             /// Adds account to repository.  Body must contain Query string of name="AccountNameHere"&pwd="PasswordHere"
             /// </summary>
-            Post("Account/Add", args =>
+            Post("Account/Add", async args =>
             {
                 var request = Nancy.Extensions.RequestStreamExtensions.AsString(Nancy.IO.RequestStream.FromStream(this.Request.Body));
                 NameValueCollection coll = HttpUtility.ParseQueryString(request);
                 var name = coll["name"];
                 var pwd = coll["pwd"];
-                Task<ActionResult<Account>> addTask = _accountService.UpdateAccount(args.accountId, name, pwd);
-                ActionResult<Account> addResult = addTask.Result;
+                Task<ActionResult<Account>> addTask = _accountService.AddAccount(name, pwd);
+                ActionResult<Account> addResult = await addTask;
                 if (addResult.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.Created) {
                     return addResult.statusCode;
                 }
@@ -53,14 +53,14 @@ namespace NancyApplication
             /// <summary>
             /// Updates account on registry.  Body must contain Query string of name="AccountNameHere"&pwd="PasswordHere"
             /// </summary>
-            Put("Account/{accountId}/Update", args =>
+            Put("Account/{accountId}/Update", async args =>
             {
                 var request = Nancy.Extensions.RequestStreamExtensions.AsString(Nancy.IO.RequestStream.FromStream(this.Request.Body));
                 NameValueCollection coll = HttpUtility.ParseQueryString(request);
                 var name = coll["name"];
                 var pwd = coll["pwd"];
                 Task<ActionResult<Account>> updateTask = _accountService.UpdateAccount(args.accountId, name, pwd);
-                ActionResult<Account> updatResult = updateTask.Result;
+                ActionResult<Account> updatResult = await updateTask;
                 if (updatResult.statusCode != (System.Net.HttpStatusCode)HttpStatusCode.OK) {
                     return updatResult.statusCode;
                 }
