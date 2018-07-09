@@ -26,7 +26,7 @@ namespace NancyApplication {
             var result = new ActionResult<Subscription>();
 
             //Verify topic exists
-            var getTopicResponse = _topicRepo.GetTopic(topicId);
+            var getTopicResponse = await _topicRepo.GetTopic(topicId);
             if (getTopicResponse ==  null || getTopicResponse.resposeObject == null) { 
                 result.statusCode = HttpStatusCode.BadRequest;
                 return result; 

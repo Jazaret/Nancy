@@ -1,10 +1,11 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NancyApplication {
     public interface ITopicRepository
     {
-        ActionResult<IEnumerable<Topic>> GetTopics();
-        ActionResult<IEnumerable<Topic>> SearchForTopics(string news);
-        ActionResult<Topic> GetTopic(string id);
+        Task<ActionResult<IEnumerable<Topic>>> GetTopics();
+        Task<ActionResult<IEnumerable<Topic>>> SearchForTopics(string news);
+        Task<ActionResult<Topic>> GetTopic(string id);
     }
 }

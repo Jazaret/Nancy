@@ -23,9 +23,9 @@ namespace NancyApplication {
         /// Get list of all topics
         /// </summary>
         /// <returns>list of all topics</returns>
-        public ActionResult<IEnumerable<Topic>> GetAllTopics()
+        public async Task<ActionResult<IEnumerable<Topic>>> GetAllTopics()
         {
-            return  _topicRepo.GetTopics();
+            return  await _topicRepo.GetTopics();
         }
 
         /// <summary>
@@ -33,7 +33,7 @@ namespace NancyApplication {
         /// </summary>
         /// <param name="news">paramter to search for</param>
         /// <returns>list of topics that contains parameter string</returns>
-        public ActionResult<IEnumerable<Topic>> SearchForNews(string news) {
+        public async Task<ActionResult<IEnumerable<Topic>>> SearchForNews(string news) {
 
             string cacheResult = null;
             
@@ -42,7 +42,7 @@ namespace NancyApplication {
                 return JsonConvert.DeserializeObject<ActionResult<IEnumerable<Topic>>>(cacheResult);
             }
 
-            var result = _topicRepo.SearchForTopics(news);
+            var result = await _topicRepo.SearchForTopics(news);
 
             if (result != null && result.statusCode == HttpStatusCode.OK) {
                 var addCacheResult = _cacheService.AddToCache(news,JsonConvert.SerializeObject(result));

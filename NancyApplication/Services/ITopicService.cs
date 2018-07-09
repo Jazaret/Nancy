@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NancyApplication {
     public interface ITopicService
         {
-            ActionResult<IEnumerable<Topic>> GetAllTopics();
-            ActionResult<IEnumerable<Topic>> SearchForNews(string news);
+            Task<ActionResult<IEnumerable<Topic>>> GetAllTopics();
+            Task<ActionResult<IEnumerable<Topic>>> SearchForNews(string news);
         }
 }

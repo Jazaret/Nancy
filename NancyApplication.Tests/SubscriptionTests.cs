@@ -31,7 +31,7 @@ namespace NancyApplication.Tests
 
             //Given
             var ar = new ActionResult<Topic>() {resposeObject= new Topic(), statusCode = HttpStatusCode.OK};
-            _mockTopicRepo.Setup(m => m.GetTopic(subTopicId)).Returns(ar);
+            _mockTopicRepo.Setup(m => m.GetTopic(subTopicId)).Returns(Task.FromResult(ar));
             
             var ar2 = new ActionResult<Subscription>() {resposeObject= subscription, statusCode = HttpStatusCode.Created};
             _mockSubRepo.Setup(m => m.AddSubscription(It.IsAny<Subscription>())).Returns(Task.FromResult(ar2));
@@ -53,7 +53,7 @@ namespace NancyApplication.Tests
             //Given
             var subscription = new Subscription{TopicID = subTopicId, AccountID=subAccountId};
             var ar = new ActionResult<Topic>() {resposeObject= new Topic(), statusCode = HttpStatusCode.OK};
-            _mockTopicRepo.Setup(m => m.GetTopic(subTopicId)).Returns(ar);
+            _mockTopicRepo.Setup(m => m.GetTopic(subTopicId)).Returns(Task.FromResult(ar));
 
             var ar2 = new ActionResult<Subscription>() {resposeObject= subscription, statusCode = HttpStatusCode.OK};
             _mockSubRepo.Setup(m => m.GetSubscriptionByTopic(subTopicId,subAccountId,string.Empty)).Returns(ar2);

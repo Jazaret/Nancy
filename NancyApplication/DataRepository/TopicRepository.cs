@@ -8,6 +8,7 @@ namespace NancyApplication
     using Microsoft.Azure.Documents;
     using Microsoft.Azure.Documents.Client;
     using Newtonsoft.Json;
+    using Microsoft.Azure.Documents.Linq;
 
     /// <summary>
     /// Repository that handles the operations for the Topic documents in DynamoDB
@@ -33,13 +34,19 @@ namespace NancyApplication
         /// Get list of all topics in document collection
         /// </summary>
         /// <returns>All topics</returns>
-        ActionResult<IEnumerable<Topic>> ITopicRepository.GetTopics()
+        public async Task<ActionResult<IEnumerable<Topic>>> GetTopics()
         {   
             var result = new ActionResult<IEnumerable<Topic>>();
 
             try {
-                var queryResult = this.Client.CreateDocumentQuery<Topic>(UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection)).ToList();
-                result.resposeObject = queryResult;
+                var topics = new List<Topic>();
+                var queryResult = this.Client.CreateDocumentQuery<Topic>(UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection)).AsDocumentQuery();
+                while (queryResult.HasMoreResults) 
+                {
+                    var response = await queryResult.ExecuteNextAsync<Topic>();
+	                topics.AddRange(response);
+                }
+                result.resposeObject = topics;
                 result.statusCode = HttpStatusCode.OK;
                 return result;
             } catch (DocumentClientException ex) {
@@ -58,14 +65,20 @@ namespace NancyApplication
         /// </summary>
         /// <param name="news">news for which to search across all topics</param>
         /// <returns>topics that contains the parameter</returns>
-        public ActionResult<IEnumerable<Topic>> SearchForTopics(string news)
+        public async Task<ActionResult<IEnumerable<Topic>>> SearchForTopics(string news)
         {
             var result = new ActionResult<IEnumerable<Topic>>();
             try {
+                List<Topic> topics = new List<Topic>();
                 var queryResult = this.Client.CreateDocumentQuery<Topic>(
                         UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
-                        .Where(f => f.Name.Contains(news)).ToList();
-                result.resposeObject = queryResult;
+                        .Where(f => f.Name.Contains(news)).AsDocumentQuery();
+                while (queryResult.HasMoreResults) 
+                {
+                    var response = await queryResult.ExecuteNextAsync<Topic>();
+	                topics.AddRange(response);
+                }
+                result.resposeObject = topics;
                 result.statusCode = HttpStatusCode.OK;
                 return result;
             } catch (DocumentClientException ex) {
@@ -106,14 +119,20 @@ namespace NancyApplication
             return result.StatusCode;
         }
 
-        public ActionResult<Topic> GetTopic(string id) {
+        public async Task<ActionResult<Topic>> GetTopic(string id) {
             var result = new ActionResult<Topic>();
             try {
+                var topic = new Topic();
                 var queryResult = this.Client.CreateDocumentQuery<Topic>(
                     UriFactory.CreateDocumentCollectionUri(TopicsDB, TopicsCollection))
-                    .Where(t => t.ID == id).AsEnumerable().FirstOrDefault();
-                result.statusCode = queryResult == null ? HttpStatusCode.NotFound : HttpStatusCode.OK;
-                result.resposeObject = queryResult;
+                    .Where(t => t.ID == id).AsDocumentQuery();
+                while (queryResult.HasMoreResults) 
+                {
+                    var response = await queryResult.ExecuteNextAsync<Topic>();
+                    topic = response.FirstOrDefault();
+                }                    
+                result.statusCode = topic == null ? HttpStatusCode.NotFound : HttpStatusCode.OK;
+                result.resposeObject = topic;
                 return result;
             } catch (DocumentClientException ex) {
                 Console.WriteLine(ex.Message + " " + ex.StatusCode);
