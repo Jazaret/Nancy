@@ -29,8 +29,7 @@ namespace NancyApplication
             subscriptionsCollectionDefinition.PartitionKey.Paths.Add("/AccountID");
             this.Collection = await this.Client.CreateDocumentCollectionIfNotExistsAsync(
                 UriFactory.CreateDatabaseUri(TopicsDB),
-                subscriptionsCollectionDefinition,
-                new RequestOptions { OfferThroughput = 10100 });
+                subscriptionsCollectionDefinition);
         }
 
         /// <summary>
