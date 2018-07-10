@@ -21,7 +21,7 @@ namespace NancyApplication.Tests
         }
 
         [Fact]
-        public void AssertAddAccountValuesAreSet()
+        public async Task AssertAddAccountValuesAreSetAsync()
         {
             //Given            
             var id = Guid.NewGuid().ToString();
@@ -30,7 +30,7 @@ namespace NancyApplication.Tests
             _mockRepo.Setup(m => m.AddAccount(It.IsAny<Account>())).Returns(Task.FromResult(ar));
 
             //When
-            var result = _accountService.AddAccount(accountName,accountPassword).Result;
+            var result = await _accountService.AddAccount(accountName,accountPassword);
             
             //Then
             _mockRepo.Verify(m => m.AddAccount(It.IsAny<Account>()));
@@ -40,12 +40,12 @@ namespace NancyApplication.Tests
         }
 
         [Fact]
-        public void AssertAddAccountInvalidAddAccountNeverCalled()
+        public async Task AssertAddAccountInvalidAddAccountNeverCalledAsync()
         {
             //Given
 
             //When
-            var result = _accountService.AddAccount("","").Result;
+            var result = await _accountService.AddAccount("","");
 
             //Then
             _mockRepo.Verify(m => m.AddAccount(It.IsAny<Account>()),Times.Never());
@@ -53,7 +53,7 @@ namespace NancyApplication.Tests
         }
 
         [Fact]
-        public void AssertUpdateAccount()
+        public async Task AssertUpdateAccountAsync()
         {
             //Given
             var id = Guid.NewGuid().ToString();
@@ -62,7 +62,7 @@ namespace NancyApplication.Tests
             _mockRepo.Setup(m => m.UpdateAccount(It.IsAny<Account>())).Returns(Task.FromResult(ar));
 
             //When
-            var result = _accountService.UpdateAccount(id,accountName,accountPassword).Result;
+            var result = await _accountService.UpdateAccount(id,accountName,accountPassword);
 
             //Then
             _mockRepo.Verify(m => m.UpdateAccount(It.IsAny<Account>()));

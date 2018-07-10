@@ -25,7 +25,7 @@ namespace NancyApplication.Tests
         }
 
         [Fact]
-        public void AssertAddSubscriptionCallsRepo()
+        public async Task AssertAddSubscriptionCallsRepoAsync()
         {
             var subscription = new Subscription{TopicID = subTopicId, AccountID=subAccountId};
 
@@ -37,18 +37,18 @@ namespace NancyApplication.Tests
             _mockSubRepo.Setup(m => m.AddSubscription(It.IsAny<Subscription>())).Returns(Task.FromResult(ar2));
 
             //When
-            var result = _subscriptionService.CreateSubscription(subAccountId,subTopicId, string.Empty);
+            var result = await _subscriptionService.CreateSubscription(subAccountId,subTopicId, string.Empty);
             
             //Then
             _mockTopicRepo.Verify(m => m.GetTopic(subTopicId));
             _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(subTopicId,subAccountId,string.Empty));
             _mockSubRepo.Verify(m => m.AddSubscription(It.IsAny<Subscription>()));
-            Assert.Equal(subTopicId,result.Result.resposeObject.TopicID);
-            Assert.Equal(subAccountId,result.Result.resposeObject.AccountID);
+            Assert.Equal(subTopicId,result.resposeObject.TopicID);
+            Assert.Equal(subAccountId,result.resposeObject.AccountID);
         }
 
         [Fact]
-        public void AssertAddSubscriptionWithExistingSubScriptioncDoesNotCallAddSubcription()
+        public async Task AssertAddSubscriptionWithExistingSubScriptioncDoesNotCallAddSubcriptionAsync()
         {
             //Given
             var subscription = new Subscription{TopicID = subTopicId, AccountID=subAccountId};
@@ -59,35 +59,35 @@ namespace NancyApplication.Tests
             _mockSubRepo.Setup(m => m.GetSubscriptionByTopic(subTopicId,subAccountId,string.Empty)).Returns(ar2);
 
             //When
-            var result = _subscriptionService.CreateSubscription(subAccountId,subTopicId,string.Empty);
+            var result = await _subscriptionService.CreateSubscription(subAccountId,subTopicId,string.Empty);
             
             //Then
             _mockTopicRepo.Verify(m => m.GetTopic(subTopicId));
             _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(subTopicId,subAccountId,string.Empty));
             _mockSubRepo.Verify(m => m.AddSubscription(It.IsAny<Subscription>()),Times.Never());
-            Assert.Null(result.Result.resposeObject);
+            Assert.Null(result.resposeObject);
         }        
 
         /// <summary>
         /// If topic is null then Add subscription and get subscription should never be called
         /// </summary>
         [Fact]
-        public void AssertAddSubscriptionWithNoTopicDoesNotCallAddSubcription()
+        public async Task AssertAddSubscriptionWithNoTopicDoesNotCallAddSubcriptionAsync()
         {
             //Given
 
             //When
-            var result = _subscriptionService.CreateSubscription(subAccountId,subTopicId,string.Empty);
+            var result = await _subscriptionService.CreateSubscription(subAccountId,subTopicId,string.Empty);
             
             //Then
             _mockTopicRepo.Verify(m => m.GetTopic(subTopicId));
             _mockSubRepo.Verify(m => m.GetSubscriptionByTopic(It.IsAny<string>(),It.IsAny<string>(),It.IsAny<string>()),Times.Never());
             _mockSubRepo.Verify(m => m.AddSubscription(It.IsAny<Subscription>()),Times.Never());
-            Assert.Null(result.Result.resposeObject);
+            Assert.Null(result.resposeObject);
         }        
 
         [Fact]
-        public async void AssertDeleteSubscriptionCallsRepoToDelete()
+        public async Task AssertDeleteSubscriptionCallsRepoToDeleteAsync()
         {
             //Given
 
@@ -99,7 +99,7 @@ namespace NancyApplication.Tests
         }    
 
         [Fact]
-        public void AssertConfirmSubscriptionCallsRepo()
+        public async Task AssertConfirmSubscriptionCallsRepoAsync()
         {
             //Given
             var subscription = new Subscription{
@@ -114,7 +114,7 @@ namespace NancyApplication.Tests
                 .Returns(ar);
 
             //When
-            var result = _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId, string.Empty);
+            var result = await _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId, string.Empty);
 
             //Then
             _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId,string.Empty));
@@ -122,21 +122,21 @@ namespace NancyApplication.Tests
         }     
 
         [Fact]
-        public void AssertConfirmSubscriptionWithNoSubscriptionDoesNotCallUpdateSubscription()
+        public async Task AssertConfirmSubscriptionWithNoSubscriptionDoesNotCallUpdateSubscriptionAsync()
         {
             //Given
 
             //When
-            var result = _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId, string.Empty);
+            var result = await _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId, string.Empty);
 
             //Then
             _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId,string.Empty));
             _mockSubRepo.Verify(m => m.UpdateSubscription(It.IsAny<Subscription>(), It.IsAny<string>()),Times.Never);
-            Assert.Equal(HttpStatusCode.NoContent,result.Result.statusCode);
+            Assert.Equal(HttpStatusCode.NoContent,result.statusCode);
         }                          
 
         [Fact]
-        public void AssertConfirmSubscriptionAlreadyConfirmednDoesNotUpdateSubscription()
+        public async Task AssertConfirmSubscriptionAlreadyConfirmednDoesNotUpdateSubscriptionAsync()
         {
             //Given
             var subscription = new Subscription{
@@ -151,12 +151,12 @@ namespace NancyApplication.Tests
                 .Returns(ar);
 
             //When
-            var result = _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId, string.Empty);
+            var result = await _subscriptionService.ConfirmSubscription(subConfirmationId,subAccountId, string.Empty);
 
             //Then
             _mockSubRepo.Verify(m => m.GetSubscriptionByConfirmation(subConfirmationId,subAccountId,string.Empty));
             _mockSubRepo.Verify(m => m.UpdateSubscription(It.IsAny<Subscription>(), It.IsAny<string>()),Times.Never);
-            Assert.Equal(HttpStatusCode.NotModified,result.Result.statusCode);
+            Assert.Equal(HttpStatusCode.NotModified,result.statusCode);
         }     
     }
 }

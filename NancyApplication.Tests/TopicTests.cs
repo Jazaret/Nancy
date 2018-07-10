@@ -3,6 +3,7 @@ using Xunit;
 using Moq;
 using NancyApplication;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
 
 namespace NancyApplication.Tests
 {
@@ -19,25 +20,25 @@ namespace NancyApplication.Tests
         }
 
         [Fact]
-        public void AssertGetTopicsCallsGetTopicsRepo()
+        public async Task AssertGetTopicsCallsGetTopicsRepoAsync()
         {
             //Given
 
             //When
-            var result = _topicService.GetAllTopics();
+            var result = await _topicService.GetAllTopics();
             
             //Then
             _mockRepo.Verify(m => m.GetTopics());
         }
 
         [Fact]
-        public void AssertGetNewsCallsGetNewsRepo()
+        public async Task AssertGetNewsCallsGetNewsRepoAsync()
         {
             //Given
             const string query = "any";
 
             ///When
-            var result = _topicService.SearchForNews(query);
+            var result = await _topicService.SearchForNews(query);
             
             //Then
             _mockRepo.Verify(m => m.SearchForTopics(query));
